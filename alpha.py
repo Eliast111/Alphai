@@ -1,85 +1,61 @@
 from flask import Flask, request, render_template_string
-import requests, json, re, math, ast, operator, difflib, datetime, os
+import requests, difflib
 
 app = Flask(__name__)
 FB = "https://alpha-98bb1-default-rtdb.firebaseio.com"
 
-# MEMÓRIA
-try:
-    data = requests.get(f"{FB}/memoria.json", timeout=5).json() or {}
-    cerebro = {v.get("original","").lower(): v.get("resposta","") for k,v in data.items() if isinstance(v,dict) and "resposta" in v}
-except:
-    cerebro = {}
+BASE = {
+"ola": "Olá! 😊 Como posso ajudar hoje?",
+"oi": "Oi! Tudo bem? Em que posso te ajudar?",
+"quem e voce": "Sou o AlphAI, criado pelo Eliast. Como posso te ajudar?",
+"o que e quimica": "A Química é a ciência que estuda a composição, estrutura, propriedades e transformações da matéria.",
+"o que e fisica": "A Física estuda a natureza, energia, matéria e suas interações.",
+"o que e biologia": "Biologia é a ciência que estuda os seres vivos.",
+}
 
-def salvar_fb(p,r):
+def get_mem():
     try:
-        safe = "".join(c if c.isalnum() else "_" for c in p.lower())[:60]
+        d=requests.get(f"{FB}/memoria.json",timeout=5).json() or {}
+        m={v.get("original","").lower():v.get("resposta","") for v in d.values() if isinstance(v,dict)}
+        BASE.update(m)
+    except: pass
+
+def salvar(p,r):
+    try:
+        safe="".join(c if c.isalnum() else "_" for c in p.lower())[:60]
         requests.put(f"{FB}/memoria/{safe}.json", json={"original":p,"resposta":r}, timeout=5)
     except: pass
 
-# MATEMATICA
-OPS={ast.Add:operator.add,ast.Sub:operator.sub,ast.Mult:operator.mul,ast.Div:operator.truediv,ast.Pow:operator.pow,ast.USub:operator.neg}
-def eval_node(n):
-    if isinstance(n,ast.Constant) and isinstance(n.value,(int,float)): return n.value
-    if isinstance(n,ast.BinOp): return OPS[type(n.op)](eval_node(n.left),eval_node(n.right))
-    if isinstance(n,ast.UnaryOp): return OPS[type(n.op)](eval_node(n.operand))
-    raise ValueError
-
 def responder(perg):
-    p=perg.strip()
-    pl=p.lower()
+    get_mem()
+    p=perg.strip().lower()
+    p_clean=p.replace("?","").replace("!","").strip()
     
-    # ADMIN ENSINAR - só funciona no /admin ou com prefixo oculto
-    if pl.startswith("ensina:") and "|" in p:
-        _, rest = p.split("ensina:",1)
-        q,a = rest.split("|",1)
+    if p_clean.startswith("ensina:") and "|" in perg:
+        q,a=perg.split("ensina:",1)[1].split("|",1)
         q=q.strip(); a=a.strip()
-        cerebro[q.lower()]=a
-        salvar_fb(q,a)
-        return f"Salvo: {q}"
+        salvar(q,a); BASE[q.lower()]=a
+        return "Pronto! Aprendi."
 
-    # 1. MEMÓRIA EXATA
-    if pl in cerebro: return cerebro[pl]
-    # 2. APROXIMADO
-    m=difflib.get_close_matches(pl, cerebro.keys(), n=1, cutoff=0.8)
-    if m: return cerebro[m[0]]
-
-    # 3. MATEMATICA
-    try:
-        expr=re.sub(r'[^0-9+\-*/().\s]','',pl.replace('x','*').replace('vezes','*'))
-        if expr and len(expr)>1 and any(o in expr for o in "+-*/"):
-            res=eval_node(ast.parse(expr,mode='eval').body)
-            return f"{expr.strip()} = {res}"
-    except: pass
-
-    if "raiz" in pl:
-        nums=re.findall(r'\d+\.?\d*',pl)
-        if nums: return f"Raiz quadrada de {nums[0]} = {math.sqrt(float(nums[0])):.4f}"
-
-    # 4. WIKIPEDIA RÁPIDO
-    try:
-        q_busca=re.sub(r'o que e|quem e|qual e|\?','',pl).strip()
-        r=requests.get(f"https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch={q_busca}&format=json",timeout=3).json()
-        if r.get("query",{}).get("search"):
-            tit=r["query"]["search"][0]["title"].replace(" ","_")
-            s=requests.get(f"https://pt.wikipedia.org/api/rest_v1/page/summary/{tit}",timeout=3).json()
-            if s.get("extract"):
-                resp=s["extract"][:600]
-                cerebro[pl]=resp
-                salvar_fb(pl,resp)
-                return resp
-    except: pass
-
-    return "Ainda não tenho essa informação na minha base. Em breve será atualizada."
+    if p_clean in BASE: return BASE[p_clean]
+    
+    m=difflib.get_close_matches(p_clean, BASE.keys(), n=1, cutoff=0.7)
+    if m: return BASE[m[0]]
+    
+    for k in BASE:
+        if k in p_clean or p_clean in k:
+            return BASE[k]
+    
+    return "Ainda estou organizando essa informação. Pode perguntar de outra forma? Exemplo: 'O que é química'"
 
 HTML="""
 <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AlphAI</title>
 <style>
-body{margin:0;font-family:Inter,sans-serif;background:#fff;color:#111;display:flex;flex-direction:column;height:100vh}
+body{margin:0;font-family:sans-serif;background:#fff;color:#111;display:flex;flex-direction:column;height:100vh}
 header{padding:16px;text-align:center;font-weight:600;border-bottom:1px solid #eee}
 #chat{flex:1;overflow-y:auto;padding:20px;max-width:700px;margin:0 auto;width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;padding-bottom:90px}
-.msg{padding:14px 18px;border-radius:18px;max-width:80%;line-height:1.4;font-size:15px}
+.msg{padding:14px 18px;border-radius:18px;max-width:80%;line-height:1.4}
 .user{background:#111;color:#fff;align-self:flex-end}
 .bot{background:#f2f2f2;align-self:flex-start}
 #box{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;padding:12px;display:flex;max-width:700px;margin:0 auto}
@@ -102,16 +78,9 @@ document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')s
 add('Olá! Sou o AlphAI. Como posso ajudar hoje?','bot')
 </script></body></html>
 """
-
 @app.route("/")
 def home(): return render_template_string(HTML)
-
 @app.route("/ask")
-def ask():
-    return responder(request.args.get("q",""))
-
+def ask(): return responder(request.args.get("q",""))
 @app.route("/admin")
-def admin():
-    return '<form action="/ask">Pergunta: <input name="q" value="ensina: pergunta | resposta" style="width:80%"><br><button>Salvar</button></form>'
-
-if __name__=="__main__": app.run(host="0.0.0.0",port=5000)
+def admin(): return '<form action="/ask">ensina: <input name="q" style="width:70%"><button>Salvar</button></form>'
