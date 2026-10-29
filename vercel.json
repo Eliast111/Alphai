@@ -1,1 +1,16 @@
-{"version":2,"builds":[{"src":"alpha.py","use":"@vercel/python"}],"routes":[{"src":"/(.*)","dest":"alpha.py"}]}
+
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "alpha.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "alpha.py"
+    }
+  ]
+}
