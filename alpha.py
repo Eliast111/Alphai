@@ -81,7 +81,99 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 .composer-wrap{padding:12px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,#080d18 20%)}.composer{max-width:900px;margin:0 auto;border:1px solid #35445e;background:#101827;border-radius:20px;padding:8px;display:flex;gap:8px;align-items:flex-end;box-shadow:0 10px 40px #0004}.composer textarea{resize:none;max-height:150px;min-height:42px;flex:1;border:0;outline:0;background:transparent;color:var(--text);padding:10px 9px}.composer button{border:0;border-radius:13px;padding:11px 15px;background:linear-gradient(135deg,#28b7ef,#7669f5);color:#07111c;font-weight:800}.composer button:disabled{opacity:.45;cursor:default}.disclaimer{text-align:center;color:#71829b;font-size:11px;margin-top:8px}
 .mobile-menu{display:none;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:6px 10px}
 @media(max-width:720px){.sidebar{position:fixed;z-index:5;inset:0 auto 0 0;width:min(290px,85vw);transform:translateX(-105%);transition:transform .2s;box-shadow:20px 0 60px #0008}.sidebar.open{transform:translateX(0)}.mobile-menu{display:block}.topbar{padding:0 13px}.chat{padding:18px 13px}.composer-wrap{padding-left:10px;padding-right:10px}.content{max-width:88%}.welcome{min-height:50%}.suggestions button{font-size:12px}}
+
+.markdown-rendered {
+  white-space: normal;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.markdown-rendered p { margin: 0 0 13px; }
+.markdown-rendered p:last-child { margin-bottom: 0; }
+.markdown-rendered h1,.markdown-rendered h2,
+.markdown-rendered h3,.markdown-rendered h4 {
+  line-height: 1.3;
+  margin: 22px 0 12px;
+  color: #eef4ff;
+}
+.markdown-rendered h1 { font-size: 1.55em; }
+.markdown-rendered h2 { font-size: 1.35em; }
+.markdown-rendered h3 { font-size: 1.15em; }
+.markdown-rendered strong { color: #fff; font-weight: 800; }
+.markdown-rendered a { color: #59d1ff; }
+.markdown-rendered ul,.markdown-rendered ol {
+  padding-left: 25px;
+  margin: 10px 0 15px;
+}
+.markdown-rendered li { margin: 5px 0; }
+.markdown-rendered blockquote {
+  border-left: 3px solid #36bafa;
+  padding: 8px 14px;
+  margin: 14px 0;
+  background: #17243a;
+  border-radius: 0 10px 10px 0;
+  color: #c6d8ed;
+}
+.markdown-rendered table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 15px 0;
+  font-size: 13px;
+}
+.markdown-rendered th,.markdown-rendered td {
+  border: 1px solid #35445e;
+  padding: 9px 12px;
+  text-align: left;
+}
+.markdown-rendered th { background: #1b2a42; }
+.markdown-rendered tr:nth-child(even) { background: #172235; }
+.markdown-rendered pre {
+  position: relative;
+  overflow-x: auto;
+  background: #080f1d;
+  border: 1px solid #35445e;
+  border-radius: 12px;
+  padding: 42px 14px 14px;
+  margin: 14px 0;
+  max-width: 100%;
+}
+.markdown-rendered pre code {
+  background: transparent;
+  padding: 0;
+  color: #c7e8ff;
+  font-size: 13px;
+  white-space: pre;
+}
+.markdown-rendered :not(pre) > code {
+  background: #26354c;
+  color: #8edcff;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: .9em;
+}
+.copy-code {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  border: 1px solid #354d6b;
+  background: #17243a;
+  color: #8edcff;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.copy-code:hover { background: #263d5c; }
+.markdown-rendered hr {
+  border: 0;
+  border-top: 1px solid #35445e;
+  margin: 20px 0;
+}
+
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
@@ -112,6 +204,39 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 </main>
 <script>
 const $=id=>document.getElementById(id);
+
+document.addEventListener('click',async e=>{
+ const button=e.target.closest('.copy-code');
+ if(!button)return;
+
+ const pre=button.closest('pre');
+ const code=pre&&pre.querySelector('code');
+ if(!code)return;
+
+ const value=code.innerText;
+
+ try{
+   if(navigator.clipboard&&window.isSecureContext){
+     await navigator.clipboard.writeText(value);
+   }else{
+     const area=document.createElement('textarea');
+     area.value=value;
+     area.style.position='fixed';
+     area.style.opacity='0';
+     document.body.appendChild(area);
+     area.select();
+     const copied=document.execCommand('copy');
+     area.remove();
+     if(!copied)throw new Error('Cópia indisponível');
+   }
+
+   button.textContent='Copiado!';
+ }catch(error){
+   button.textContent='Falhou';
+   console.error('Erro ao copiar:',error);
+ }
+});
+
 const STORAGE_KEY='alphai_ultra_conversations_v1';
 let conversations=[], activeId=null, busy=false;
 try{
@@ -135,14 +260,91 @@ function renderHistory(){
  });
 }
 function addMessageNode(m){
- const row=document.createElement('div');row.className='msg '+(m.role==='user'?'user':'assistant');
- const av=document.createElement('div');av.className='avatar';av.textContent=m.role==='user'?'Tu':'A';
- const body=document.createElement('div');body.className='content';body.textContent=m.text||'';
- if(m.image_url){const img=document.createElement('img');img.src=m.image_url;img.alt='Imagem gerada pela AlphAI';img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>{img.remove();const e=document.createElement('div');e.className='meta';e.textContent='Não foi possível carregar a imagem. Tenta novamente.';body.append(e)};body.appendChild(img);}
- if(m.prompt){const p=document.createElement('div');p.className='meta';p.textContent='Prompt: '+m.prompt;body.appendChild(p);}
- if(m.sources&&m.sources.length){const list=document.createElement('div');list.className='source-list';m.sources.forEach(s=>{try{const u=new URL(s.url);if(!['http:','https:'].includes(u.protocol))return;const a=document.createElement('a');a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=s.title||u.hostname;list.appendChild(a)}catch{}});body.appendChild(list);}
- row.append(av,body);$('messages').appendChild(row);
+ const row=document.createElement('div');
+ row.className='msg '+(m.role==='user'?'user':'assistant');
+
+ const av=document.createElement('div');
+ av.className='avatar';
+ av.textContent=m.role==='user'?'Tu':'A';
+
+ const body=document.createElement('div');
+ body.className='content';
+
+ if(m.role==='assistant' && window.marked && window.DOMPurify){
+   try{
+     const parsed=window.marked.parse(String(m.text||''),{
+       gfm:true,
+       breaks:true
+     });
+
+     body.classList.add('markdown-rendered');
+     body.innerHTML=window.DOMPurify.sanitize(parsed,{
+       USE_PROFILES:{html:true}
+     });
+
+     body.querySelectorAll('pre code').forEach(code=>{
+       const pre=code.parentElement;
+       const copy=document.createElement('button');
+       copy.type='button';
+       copy.className='copy-code';
+       copy.textContent='Copiar';
+       pre.appendChild(copy);
+     });
+   }catch(error){
+     console.error('Erro ao formatar Markdown:',error);
+     body.textContent=m.text||'';
+   }
+ }else{
+   body.textContent=m.text||'';
+ }
+
+ if(m.image_url){
+   const img=document.createElement('img');
+   img.src=m.image_url;
+   img.alt='Imagem gerada pela AlphAI';
+   img.loading='lazy';
+   img.referrerPolicy='no-referrer';
+   img.onerror=()=>{
+     img.remove();
+     const e=document.createElement('div');
+     e.className='meta';
+     e.textContent='Não foi possível carregar a imagem. Tenta novamente.';
+     body.append(e);
+   };
+   body.appendChild(img);
+ }
+
+ if(m.prompt){
+   const p=document.createElement('div');
+   p.className='meta';
+   p.textContent='Prompt: '+m.prompt;
+   body.appendChild(p);
+ }
+
+ if(m.sources&&m.sources.length){
+   const list=document.createElement('div');
+   list.className='source-list';
+
+   m.sources.forEach(s=>{
+     try{
+       const u=new URL(s.url);
+       if(!['http:','https:'].includes(u.protocol))return;
+       const a=document.createElement('a');
+       a.href=u.href;
+       a.target='_blank';
+       a.rel='noopener noreferrer';
+       a.textContent=s.title||u.hostname;
+       list.appendChild(a);
+     }catch{}
+   });
+
+   body.appendChild(list);
+ }
+
+ row.append(av,body);
+ $('messages').appendChild(row);
 }
+
 function render(){
  const c=active();$('messages').replaceChildren();$('welcome').hidden=!!(c&&c.messages.length);
  if(c)c.messages.forEach(addMessageNode);
