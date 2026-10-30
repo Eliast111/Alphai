@@ -1,3 +1,2 @@
-import os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from app import app
+# Vercel Python Function entry point.
+from alpha import app
