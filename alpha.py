@@ -94,6 +94,13 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 .chat{width:100%;max-width:900px;margin:0 auto;flex:1;overflow-y:auto;padding:28px 22px 24px;scroll-behavior:smooth}.welcome{min-height:55%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 0}.welcome .orb{width:70px;height:70px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(135deg,#1b9cda,#8b7cff);color:#06101c;font-size:30px;font-weight:900;box-shadow:0 0 55px #258bd533}.welcome h1{font-size:clamp(28px,5vw,42px);margin:18px 0 8px;letter-spacing:-1.5px}.gradient{background:linear-gradient(90deg,#59d1ff,#aaa1ff);background-clip:text;color:transparent}.welcome p{color:var(--muted);max-width:500px;margin:0}.suggestions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:24px}.suggestions button{border:1px solid var(--line);background:#111b2b;color:#d9e5f7;padding:10px 13px;border-radius:14px}
 .msg{display:flex;margin:18px 0;gap:11px;align-items:flex-start}.msg.user{flex-direction:row-reverse}.avatar{width:32px;height:32px;flex:0 0 32px;border-radius:11px;background:var(--panel2);display:grid;place-items:center;color:var(--blue);font-weight:800}.user .avatar{background:#263c60;color:#fff}.content{max-width:min(78%,700px);padding:13px 16px;border:1px solid var(--line);background:#111b2a;border-radius:5px 17px 17px 17px;white-space:pre-wrap;overflow-wrap:anywhere}.user .content{background:linear-gradient(135deg,#1d4770,#39356f);border-color:#3c5b86;border-radius:17px 5px 17px 17px}.content img{display:block;max-width:100%;height:auto;border-radius:12px;margin-top:12px}.source-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.source-list a{font-size:12px;color:#8edcff;text-decoration:none;border:1px solid #2c536d;border-radius:8px;padding:4px 8px}.source-list a:hover{text-decoration:underline}.meta{font-size:11px;color:var(--muted);margin-top:7px}.typing{color:var(--muted);font-size:13px;padding:8px 0}
 .composer-wrap{padding:12px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,#080d18 20%)}.composer{max-width:900px;margin:0 auto;border:1px solid #35445e;background:#101827;border-radius:20px;padding:8px;display:flex;gap:8px;align-items:flex-end;box-shadow:0 10px 40px #0004}.composer textarea{resize:none;max-height:150px;min-height:42px;flex:1;border:0;outline:0;background:transparent;color:var(--text);padding:10px 9px}.composer button{border:0;border-radius:13px;padding:11px 15px;background:linear-gradient(135deg,#28b7ef,#7669f5);color:#07111c;font-weight:800}.composer button:disabled{opacity:.45;cursor:default}.disclaimer{text-align:center;color:#71829b;font-size:11px;margin-top:8px}
+.workspace-logo{
+  width:44px;
+  height:44px;
+  object-fit:contain;
+  flex-shrink:0;
+  filter:drop-shadow(0 0 9px #36bafa55);
+}
 .mobile-menu{display:none;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:6px 10px}
 @media(max-width:720px){.sidebar{position:fixed;z-index:5;inset:0 auto 0 0;width:min(290px,85vw);transform:translateX(-105%);transition:transform .2s;box-shadow:20px 0 60px #0008}.sidebar.open{transform:translateX(0)}.mobile-menu{display:block}.topbar{padding:0 13px}.chat{padding:18px 13px}.composer-wrap{padding-left:10px;padding-right:10px}.content{max-width:88%}.welcome{min-height:50%}.suggestions button{font-size:12px}}
 
@@ -200,7 +207,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 </aside>
 <main class="main">
   <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><div><div class="top-title">AlphAI Workspace</div><div class="sub">O teu assistente inteligente</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo AlphAI"><div><div class="top-title">AlphAI Workspace</div><div class="sub">O teu assistente inteligente</div></div></div>
     <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
   </header>
   <section class="chat" id="chat">
