@@ -66,11 +66,26 @@ HTML = r"""
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
 <title>AlphAI ULTRA</title>
+<link rel="icon" type="image/webp" href="/static/assets/alphai-icon.webp">
 <style>
 :root{color-scheme:dark;--bg:#080d18;--panel:#101827;--panel2:#151f31;--line:#26334a;--text:#eef4ff;--muted:#9aabc5;--blue:#36bafa;--purple:#8b7cff}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142744 0,#080d18 52%);color:var(--text);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;height:100dvh;display:flex;overflow:hidden}
 button,input,textarea{font:inherit}button{cursor:pointer}
 .sidebar{width:260px;border-right:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px;background:#080d18cc}
+.brand-logo{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  flex-shrink:0;
+  filter:drop-shadow(0 0 10px #36bafa55);
+}
+.welcome .orb img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:8px;
+  border-radius:inherit;
+}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:.2px}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#06101c;font-weight:900}
 .sub{color:var(--muted);font-size:12px}.new{background:linear-gradient(135deg,#1b9cda,#7164e8);color:white;border:0;border-radius:13px;padding:12px;font-weight:700}
 .side-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.4px;margin-top:10px}.history{display:flex;flex-direction:column;gap:6px;overflow:auto}.history button{border:1px solid transparent;text-align:left;color:#c7d3e8;background:transparent;border-radius:10px;padding:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.history button:hover{background:var(--panel);border-color:var(--line)}
@@ -177,7 +192,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="brand"><div class="logo">A</div><div>AlphAI <span class="sub">ULTRA</span></div></div>
+  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="AlphAI"><div>AlphAI <span class="sub">ULTRA</span></div></div>
   <button class="new" id="newChat">＋ Nova conversa</button>
   <div class="side-label">Conversas neste dispositivo</div>
   <div class="history" id="history"></div>
@@ -190,7 +205,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}
   </header>
   <section class="chat" id="chat">
     <div class="welcome" id="welcome">
-      <div class="orb">A</div><h1>Olá, sou a <span class="gradient">AlphAI</span>.</h1>
+      <div class="orb"><img src="/static/assets/alphai-icon.webp" alt="Símbolo AlphAI"></div><h1>Olá, sou a <span class="gradient">AlphAI</span>.</h1>
       <p>Transforma ideias em soluções. Aprende, cria, pesquisa e desenvolve os teus projectos com a AlphAI.</p>
       <div class="suggestions">
         <button data-prompt="Explica inteligência artificial de forma simples">Explica uma ideia</button>
@@ -252,13 +267,42 @@ function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(conversations.slice(0,50)));}catch{}}
 function active(){return conversations.find(c=>c.id===activeId)}
 function createChat(){const c={id:id(),title:'Nova conversa',messages:[],updated:Date.now()};conversations.unshift(c);activeId=c.id;save();render();$('sidebar').classList.remove('open');$('prompt').focus();}
+
 function renderHistory(){
- const host=$('history');host.replaceChildren();
+ const host=$('history');
+ host.replaceChildren();
+
  conversations.slice().sort((a,b)=>b.updated-a.updated).forEach(c=>{
-  const b=document.createElement('button');b.textContent=c.title||'Nova conversa';b.title=b.textContent;
-  b.onclick=()=>{activeId=c.id;render();$('sidebar').classList.remove('open')};host.appendChild(b);
+  const b=document.createElement('button');
+  b.textContent=c.title||'Nova conversa';
+  b.title=b.textContent;
+  b.onclick=()=>{
+   activeId=c.id;
+   render();
+   $('sidebar').classList.remove('open');
+  };
+  host.appendChild(b);
  });
 }
+
+function unwrapMarkdownFence(value){
+ const text=String(value||'').replace(/\r\n/g,'\n').trim();
+ const lines=text.split('\n');
+
+ if(lines.length<3)return text;
+
+ const opening=lines[0].trim();
+ const closing=lines[lines.length-1].trim();
+
+ const isMarkdownFence=/^```(markdown|md|text|plaintext)?\s*$/i.test(opening);
+
+ if(isMarkdownFence && closing==='```'){
+  return lines.slice(1,-1).join('\n').trim();
+ }
+
+ return text;
+}
+
 function addMessageNode(m){
  const row=document.createElement('div');
  row.className='msg '+(m.role==='user'?'user':'assistant');
@@ -271,74 +315,103 @@ function addMessageNode(m){
  body.className='content';
 
  if(m.role==='assistant' && window.marked && window.DOMPurify){
-   try{
-     const parsed=window.marked.parse(String(m.text||''),{
-       gfm:true,
-       breaks:true
-     });
+  try{
+   const cleanText=unwrapMarkdownFence(m.text);
 
-     body.classList.add('markdown-rendered');
-     body.innerHTML=window.DOMPurify.sanitize(parsed,{
-       USE_PROFILES:{html:true}
-     });
+   const parsed=window.marked.parse(cleanText,{
+    gfm:true,
+    breaks:true
+   });
 
-     body.querySelectorAll('pre code').forEach(code=>{
-       const pre=code.parentElement;
-       const copy=document.createElement('button');
-       copy.type='button';
-       copy.className='copy-code';
+   body.classList.add('markdown-rendered');
+
+   body.innerHTML=window.DOMPurify.sanitize(parsed,{
+    USE_PROFILES:{html:true}
+   });
+
+   body.querySelectorAll('pre').forEach(pre=>{
+    const code=pre.querySelector('code');
+
+    if(!code || !code.textContent.trim()){
+     pre.remove();
+     return;
+    }
+
+    const copy=document.createElement('button');
+    copy.type='button';
+    copy.className='copy-code';
+    copy.textContent='Copiar';
+
+    copy.addEventListener('click',async()=>{
+     try{
+      await navigator.clipboard.writeText(code.textContent);
+      copy.textContent='Copiado!';
+      copy.disabled=true;
+
+      setTimeout(()=>{
        copy.textContent='Copiar';
-       pre.appendChild(copy);
-     });
-   }catch(error){
-     console.error('Erro ao formatar Markdown:',error);
-     body.textContent=m.text||'';
-   }
- }else{
+       copy.disabled=false;
+      },1800);
+     }catch(error){
+      copy.textContent='Não foi possível copiar';
+     }
+    });
+
+    pre.appendChild(copy);
+   });
+
+  }catch(error){
+   console.error('Erro ao formatar Markdown:',error);
    body.textContent=m.text||'';
+  }
+ }else{
+  body.textContent=m.text||'';
  }
 
  if(m.image_url){
-   const img=document.createElement('img');
-   img.src=m.image_url;
-   img.alt='Imagem gerada pela AlphAI';
-   img.loading='lazy';
-   img.referrerPolicy='no-referrer';
-   img.onerror=()=>{
-     img.remove();
-     const e=document.createElement('div');
-     e.className='meta';
-     e.textContent='Não foi possível carregar a imagem. Tenta novamente.';
-     body.append(e);
-   };
-   body.appendChild(img);
+  const img=document.createElement('img');
+  img.src=m.image_url;
+  img.alt='Imagem gerada pela AlphAI';
+  img.loading='lazy';
+  img.referrerPolicy='no-referrer';
+
+  img.onerror=()=>{
+   img.remove();
+   const e=document.createElement('div');
+   e.className='meta';
+   e.textContent='Não foi possível carregar a imagem. Tenta novamente.';
+   body.append(e);
+  };
+
+  body.appendChild(img);
  }
 
  if(m.prompt){
-   const p=document.createElement('div');
-   p.className='meta';
-   p.textContent='Prompt: '+m.prompt;
-   body.appendChild(p);
+  const p=document.createElement('div');
+  p.className='meta';
+  p.textContent='Prompt: '+m.prompt;
+  body.appendChild(p);
  }
 
  if(m.sources&&m.sources.length){
-   const list=document.createElement('div');
-   list.className='source-list';
+  const list=document.createElement('div');
+  list.className='source-list';
 
-   m.sources.forEach(s=>{
-     try{
-       const u=new URL(s.url);
-       if(!['http:','https:'].includes(u.protocol))return;
-       const a=document.createElement('a');
-       a.href=u.href;
-       a.target='_blank';
-       a.rel='noopener noreferrer';
-       a.textContent=s.title||u.hostname;
-       list.appendChild(a);
-     }catch{}
-   });
+  m.sources.forEach(s=>{
+   try{
+    const u=new URL(s.url);
+    if(!['http:','https:'].includes(u.protocol))return;
 
-   body.appendChild(list);
+    const a=document.createElement('a');
+    a.href=u.href;
+    a.target='_blank';
+    a.rel='noopener noreferrer';
+    a.textContent=s.title||u.hostname;
+    list.appendChild(a);
+   }catch{}
+  });
+
+  body.appendChild(list);
  }
 
  row.append(av,body);
