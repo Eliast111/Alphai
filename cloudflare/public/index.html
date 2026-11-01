@@ -1,0 +1,813 @@
+
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d18">
+<title>AlphAI ULTRA</title>
+<link rel="icon" type="image/webp" href="/static/assets/alphai-icon.webp">
+<style>
+
+
+
+:root{
+  color-scheme:dark;
+  --bg:#080d18;
+  --panel:#101827;
+  --panel2:#151f31;
+  --line:#26334a;
+  --text:#eef4ff;
+  --muted:#9aabc5;
+  --blue:#36bafa;
+  --purple:#8b7cff;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:radial-gradient(ellipse at top,#142744 0,#080d18 52%);
+  color:var(--text);
+  font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  height:100dvh;
+  display:flex;
+  overflow:hidden;
+}
+
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+
+.sidebar{
+  width:260px;
+  flex-shrink:0;
+  border-right:1px solid var(--line);
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  background:#080d18cc;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:800;
+  font-size:19px;
+  letter-spacing:.2px;
+}
+
+.brand-logo{
+  width:38px;
+  height:38px;
+  display:block;
+  object-fit:contain;
+  flex-shrink:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:drop-shadow(0 0 8px #36bafa30);
+}
+
+.workspace-logo{
+  width:40px;
+  height:40px;
+  display:block;
+  object-fit:contain;
+  flex-shrink:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:drop-shadow(0 0 8px #36bafa30);
+}
+
+.sub{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.new{
+  background:linear-gradient(135deg,#1b9cda,#7164e8);
+  color:white;
+  border:0;
+  border-radius:13px;
+  padding:12px;
+  font-weight:700;
+}
+
+.side-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1.4px;
+  margin-top:10px;
+}
+
+.history{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  overflow:auto;
+}
+
+.history button{
+  border:1px solid transparent;
+  text-align:left;
+  color:#c7d3e8;
+  background:transparent;
+  border-radius:10px;
+  padding:9px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.history button:hover{
+  background:var(--panel);
+  border-color:var(--line);
+}
+
+.sidebar-foot{
+  margin-top:auto;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.main{
+  min-width:0;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.topbar{
+  min-height:64px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 22px;
+  background:#080d18a8;
+  backdrop-filter:blur(12px);
+}
+
+.top-title{font-weight:750}
+
+.status{
+  font-size:12px;
+  color:#8fe3bd;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#54dfa0;
+  box-shadow:0 0 12px #54dfa0;
+}
+
+.chat{
+  width:100%;
+  max-width:900px;
+  margin:0 auto;
+  flex:1;
+  overflow-y:auto;
+  padding:28px 22px 24px;
+  scroll-behavior:smooth;
+}
+
+.welcome{
+  min-height:55%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px 0;
+}
+
+.welcome .orb{
+  width:70px;
+  height:70px;
+  display:grid;
+  place-items:center;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+
+.welcome .orb img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  filter:drop-shadow(0 0 12px #36bafa35);
+}
+
+.welcome h1{
+  font-size:clamp(28px,5vw,42px);
+  margin:18px 0 8px;
+  letter-spacing:-1.5px;
+}
+
+.gradient{
+  background:linear-gradient(90deg,#59d1ff,#aaa1ff);
+  background-clip:text;
+  color:transparent;
+}
+
+.welcome p{
+  color:var(--muted);
+  max-width:500px;
+  margin:0;
+}
+
+.suggestions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:24px;
+}
+
+.suggestions button{
+  border:1px solid var(--line);
+  background:#111b2b;
+  color:#d9e5f7;
+  padding:10px 13px;
+  border-radius:14px;
+  transition:background .2s,border-color .2s;
+}
+
+.suggestions button:hover{
+  background:#1b2c45;
+  border-color:#36bafa80;
+}
+
+.msg{
+  display:flex;
+  margin:18px 0;
+  gap:11px;
+  align-items:flex-start;
+}
+
+.msg.user{flex-direction:row-reverse}
+
+.avatar{
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  border-radius:11px;
+  background:var(--panel2);
+  display:grid;
+  place-items:center;
+  color:var(--blue);
+  font-weight:800;
+}
+
+.user .avatar{
+  background:#263c60;
+  color:#fff;
+}
+
+.content{
+  max-width:min(78%,700px);
+  padding:13px 16px;
+  border:1px solid var(--line);
+  background:#111b2a;
+  border-radius:5px 17px 17px 17px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+.user .content{
+  background:linear-gradient(135deg,#1d4770,#39356f);
+  border-color:#3c5b86;
+  border-radius:17px 5px 17px 17px;
+}
+
+.content img{
+  display:block;
+  max-width:100%;
+  height:auto;
+  border-radius:12px;
+  margin-top:12px;
+}
+
+.source-list{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.source-list a{
+  font-size:12px;
+  color:#8edcff;
+  text-decoration:none;
+  border:1px solid #2c536d;
+  border-radius:8px;
+  padding:4px 8px;
+}
+
+.source-list a:hover{text-decoration:underline}
+
+.meta{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:7px;
+}
+
+.typing{
+  color:var(--muted);
+  font-size:13px;
+  padding:8px 0;
+}
+
+.composer-wrap{
+  padding:12px 20px calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,#080d18 20%);
+}
+
+.composer{
+  max-width:900px;
+  margin:0 auto;
+  border:1px solid #35445e;
+  background:#101827;
+  border-radius:20px;
+  padding:8px;
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  box-shadow:0 10px 40px #0004;
+}
+
+.composer textarea{
+  resize:none;
+  max-height:150px;
+  min-height:42px;
+  flex:1;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--text);
+  padding:10px 9px;
+}
+
+.composer button{
+  border:0;
+  border-radius:13px;
+  padding:11px 15px;
+  background:linear-gradient(135deg,#28b7ef,#7669f5);
+  color:#07111c;
+  font-weight:800;
+}
+
+.composer button:disabled{
+  opacity:.45;
+  cursor:default;
+}
+
+.disclaimer{
+  text-align:center;
+  color:#71829b;
+  font-size:11px;
+  margin-top:8px;
+}
+
+.mobile-menu{
+  display:none;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+  border-radius:9px;
+  padding:6px 10px;
+}
+
+/* Markdown */
+
+.markdown-rendered{
+  white-space:normal;
+  line-height:1.75;
+  overflow-wrap:anywhere;
+}
+
+.markdown-rendered p{margin:0 0 13px}
+.markdown-rendered p:last-child{margin-bottom:0}
+
+.markdown-rendered h1,
+.markdown-rendered h2,
+.markdown-rendered h3,
+.markdown-rendered h4{
+  line-height:1.3;
+  margin:22px 0 12px;
+  color:#eef4ff;
+}
+
+.markdown-rendered h1{font-size:1.55em}
+.markdown-rendered h2{font-size:1.35em}
+.markdown-rendered h3{font-size:1.15em}
+
+.markdown-rendered strong{
+  color:#fff;
+  font-weight:800;
+}
+
+.markdown-rendered a{color:#59d1ff}
+
+.markdown-rendered ul,
+.markdown-rendered ol{
+  padding-left:25px;
+  margin:10px 0 15px;
+}
+
+.markdown-rendered li{margin:5px 0}
+
+.markdown-rendered blockquote{
+  border-left:3px solid #36bafa;
+  padding:8px 14px;
+  margin:14px 0;
+  background:#17243a;
+  border-radius:0 10px 10px 0;
+  color:#c6d8ed;
+}
+
+.markdown-rendered table{
+  display:block;
+  max-width:100%;
+  overflow-x:auto;
+  border-collapse:collapse;
+  margin:15px 0;
+  font-size:13px;
+}
+
+.markdown-rendered th,
+.markdown-rendered td{
+  border:1px solid #35445e;
+  padding:9px 12px;
+  text-align:left;
+}
+
+.markdown-rendered th{background:#1b2a42}
+.markdown-rendered tr:nth-child(even){background:#172235}
+
+.markdown-rendered pre{
+  position:relative;
+  overflow-x:auto;
+  background:#080f1d;
+  border:1px solid #35445e;
+  border-radius:12px;
+  padding:42px 14px 14px;
+  margin:14px 0;
+  max-width:100%;
+}
+
+.markdown-rendered pre code{
+  background:transparent;
+  padding:0;
+  color:#c7e8ff;
+  font-size:13px;
+  white-space:pre;
+}
+
+.markdown-rendered :not(pre) > code{
+  background:#26354c;
+  color:#8edcff;
+  padding:2px 6px;
+  border-radius:5px;
+  font-size:.9em;
+}
+
+.copy-code{
+  position:absolute;
+  top:7px;
+  right:8px;
+  border:1px solid #354d6b;
+  background:#17243a;
+  color:#8edcff;
+  padding:5px 10px;
+  border-radius:7px;
+  font-size:11px;
+}
+
+.copy-code:hover{background:#263d5c}
+
+.markdown-rendered hr{
+  border:0;
+  border-top:1px solid #35445e;
+  margin:20px 0;
+}
+
+@media(max-width:720px){
+  .sidebar{
+    position:fixed;
+    z-index:5;
+    inset:0 auto 0 0;
+    width:min(290px,85vw);
+    transform:translateX(-105%);
+    transition:transform .2s;
+    box-shadow:20px 0 60px #0008;
+  }
+
+  .sidebar.open{transform:translateX(0)}
+  .mobile-menu{display:block}
+  .topbar{padding:0 13px}
+  .chat{padding:18px 13px}
+  .composer-wrap{padding-left:10px;padding-right:10px}
+  .content{max-width:88%}
+  .welcome{min-height:50%}
+  .suggestions button{font-size:12px}
+}
+.brand-logo{
+  mix-blend-mode:screen;
+}
+
+.workspace-logo{
+  mix-blend-mode:screen;
+}
+
+.welcome .orb img{
+  mix-blend-mode:screen;
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="AlphAI"><div>AlphAI <span class="sub">ULTRA</span></div></div>
+  <button class="new" id="newChat">＋ Nova conversa</button>
+  <div class="side-label">Conversas neste dispositivo</div>
+  <div class="history" id="history"></div>
+  <div class="sidebar-foot">O teu espaço de trabalho inteligente. As conversas ficam guardadas neste dispositivo.</div>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo AlphAI"><div><div class="top-title">AlphAI Workspace</div><div class="sub">O teu assistente inteligente</div></div></div>
+    <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
+  </header>
+  <section class="chat" id="chat">
+    <div class="welcome" id="welcome">
+      <div class="orb"><img src="/static/assets/alphai-icon.webp" alt="Símbolo AlphAI"></div><h1>Olá, sou a <span class="gradient">AlphAI</span>.</h1>
+      <p>Transforma ideias em soluções. Aprende, cria, pesquisa e desenvolve os teus projectos com a AlphAI.</p>
+      <div class="suggestions">
+        <button data-prompt="Explica inteligência artificial de forma simples">Explica uma ideia</button>
+        <button data-prompt="O que é programação Python?">Aprender programação</button>
+        <button data-prompt="gera imagem de uma cidade futurista em Maputo">Criar uma imagem</button>
+      </div>
+    </div>
+    <div id="messages"></div><div class="typing" id="typing" hidden>AlphAI está a pensar…</div>
+  </section>
+  <div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve a tua mensagem…" aria-label="Mensagem"></textarea><button id="send" type="submit">Enviar ↑</button></form><div class="disclaimer">A AlphAI pode cometer erros. Verifica informações importantes.</div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+
+document.addEventListener('click',async e=>{
+ const button=e.target.closest('.copy-code');
+ if(!button)return;
+
+ const pre=button.closest('pre');
+ const code=pre&&pre.querySelector('code');
+ if(!code)return;
+
+ const value=code.innerText;
+
+ try{
+   if(navigator.clipboard&&window.isSecureContext){
+     await navigator.clipboard.writeText(value);
+   }else{
+     const area=document.createElement('textarea');
+     area.value=value;
+     area.style.position='fixed';
+     area.style.opacity='0';
+     document.body.appendChild(area);
+     area.select();
+     const copied=document.execCommand('copy');
+     area.remove();
+     if(!copied)throw new Error('Cópia indisponível');
+   }
+
+   button.textContent='Copiado!';
+ }catch(error){
+   button.textContent='Falhou';
+   console.error('Erro ao copiar:',error);
+ }
+});
+
+const STORAGE_KEY='alphai_ultra_conversations_v1';
+let conversations=[], activeId=null, busy=false;
+try{
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  conversations=Array.isArray(saved)?saved.filter(c=>c&&typeof c==='object'&&typeof c.id==='string'&&Array.isArray(c.messages)).slice(0,50):[];
+  conversations.forEach(c=>{
+    c.title=typeof c.title==='string'?c.title:'Nova conversa';
+    c.updated=Number.isFinite(c.updated)?c.updated:Date.now();
+    c.messages=c.messages.filter(m=>m&&typeof m==='object'&&['user','assistant'].includes(m.role)).map(m=>({...m,text:typeof m.text==='string'?m.text:''}));
+  });
+}catch{conversations=[];}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(conversations.slice(0,50)));}catch{}}
+function active(){return conversations.find(c=>c.id===activeId)}
+function createChat(){const c={id:id(),title:'Nova conversa',messages:[],updated:Date.now()};conversations.unshift(c);activeId=c.id;save();render();$('sidebar').classList.remove('open');$('prompt').focus();}
+
+function renderHistory(){
+ const host=$('history');
+ host.replaceChildren();
+
+ conversations.slice().sort((a,b)=>b.updated-a.updated).forEach(c=>{
+  const b=document.createElement('button');
+  b.textContent=c.title||'Nova conversa';
+  b.title=b.textContent;
+  b.onclick=()=>{
+   activeId=c.id;
+   render();
+   $('sidebar').classList.remove('open');
+  };
+  host.appendChild(b);
+ });
+}
+
+function unwrapMarkdownFence(value){
+ const text=String(value||'').replace(/\r\n/g,'\n').trim();
+ const lines=text.split('\n');
+
+ if(lines.length<3)return text;
+
+ const opening=lines[0].trim();
+ const closing=lines[lines.length-1].trim();
+
+ const isMarkdownFence=/^```(markdown|md|text|plaintext)?\s*$/i.test(opening);
+
+ if(isMarkdownFence && closing==='```'){
+  return lines.slice(1,-1).join('\n').trim();
+ }
+
+ return text;
+}
+
+function addMessageNode(m){
+ const row=document.createElement('div');
+ row.className='msg '+(m.role==='user'?'user':'assistant');
+
+ const av=document.createElement('div');
+ av.className='avatar';
+ av.textContent=m.role==='user'?'Tu':'A';
+
+ const body=document.createElement('div');
+ body.className='content';
+
+ if(m.role==='assistant' && window.marked && window.DOMPurify){
+  try{
+   const cleanText=unwrapMarkdownFence(m.text);
+
+   const parsed=window.marked.parse(cleanText,{
+    gfm:true,
+    breaks:true
+   });
+
+   body.classList.add('markdown-rendered');
+
+   body.innerHTML=window.DOMPurify.sanitize(parsed,{
+    USE_PROFILES:{html:true}
+   });
+
+   body.querySelectorAll('pre').forEach(pre=>{
+    const code=pre.querySelector('code');
+
+    if(!code || !code.textContent.trim()){
+     pre.remove();
+     return;
+    }
+
+    const copy=document.createElement('button');
+    copy.type='button';
+    copy.className='copy-code';
+    copy.textContent='Copiar';
+
+    copy.addEventListener('click',async()=>{
+     try{
+      await navigator.clipboard.writeText(code.textContent);
+      copy.textContent='Copiado!';
+      copy.disabled=true;
+
+      setTimeout(()=>{
+       copy.textContent='Copiar';
+       copy.disabled=false;
+      },1800);
+     }catch(error){
+      copy.textContent='Não foi possível copiar';
+     }
+    });
+
+    pre.appendChild(copy);
+   });
+
+  }catch(error){
+   console.error('Erro ao formatar Markdown:',error);
+   body.textContent=m.text||'';
+  }
+ }else{
+  body.textContent=m.text||'';
+ }
+
+ if(m.image_url){
+  const img=document.createElement('img');
+  img.src=m.image_url;
+  img.alt='Imagem gerada pela AlphAI';
+  img.loading='lazy';
+  img.referrerPolicy='no-referrer';
+
+  img.onerror=()=>{
+   img.remove();
+   const e=document.createElement('div');
+   e.className='meta';
+   e.textContent='Não foi possível carregar a imagem. Tenta novamente.';
+   body.append(e);
+  };
+
+  body.appendChild(img);
+ }
+
+ if(m.prompt){
+  const p=document.createElement('div');
+  p.className='meta';
+  p.textContent='Prompt: '+m.prompt;
+  body.appendChild(p);
+ }
+
+ if(m.sources&&m.sources.length){
+  const list=document.createElement('div');
+  list.className='source-list';
+
+  m.sources.forEach(s=>{
+   try{
+    const u=new URL(s.url);
+    if(!['http:','https:'].includes(u.protocol))return;
+
+    const a=document.createElement('a');
+    a.href=u.href;
+    a.target='_blank';
+    a.rel='noopener noreferrer';
+    a.textContent=s.title||u.hostname;
+    list.appendChild(a);
+   }catch{}
+  });
+
+  body.appendChild(list);
+ }
+
+ row.append(av,body);
+ $('messages').appendChild(row);
+}
+
+function render(){
+ const c=active();$('messages').replaceChildren();$('welcome').hidden=!!(c&&c.messages.length);
+ if(c)c.messages.forEach(addMessageNode);
+ renderHistory();$('chat').scrollTop=$('chat').scrollHeight;
+}
+function pushMessage(role,text,extra={}){
+ const c=active();if(!c)return;
+ const m={role,text,...extra};c.messages.push(m);c.updated=Date.now();
+ if(role==='user'&&c.title==='Nova conversa')c.title=(text.slice(0,42)||'Nova conversa');
+ save();render();
+}
+async function sendMessage(text){
+ if(busy)return;text=(text??$('prompt').value).trim();if(!text)return;
+ if(!activeId)createChat();
+ $('prompt').value='';$('prompt').style.height='auto';pushMessage('user',text);
+ busy=true;$('send').disabled=true;$('typing').hidden=false;$('statusText').textContent='A pensar…';
+ try{
+  const c=active();
+  const context=c.messages.slice(-13,-1).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.text})).filter(m=>m.content);
+  const res=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:text,history:context})});
+  let data;try{data=await res.json()}catch{throw new Error('O servidor devolveu uma resposta inválida.')}
+  if(!res.ok)throw new Error(data.error||'Não foi possível obter resposta.');
+  pushMessage('assistant',data.text||'Não consegui gerar uma resposta.',{image_url:data.image_url||null,prompt:data.prompt||null,sources:Array.isArray(data.sources)?data.sources:[]});
+ }catch(e){pushMessage('assistant','Ocorreu um erro: '+(e.message||'verifica a ligação e tenta novamente.'));}
+ finally{busy=false;$('send').disabled=false;$('typing').hidden=true;$('statusText').textContent='Pronta';$('prompt').focus();}
+}
+$('form').addEventListener('submit',e=>{e.preventDefault();sendMessage()});
+$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+$('prompt').addEventListener('input',()=>{const el=$('prompt');el.style.height='auto';el.style.height=Math.min(el.scrollHeight,150)+'px'});
+$('newChat').onclick=createChat;
+$('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
+document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));
+if(!conversations.length)createChat();else{activeId=conversations[0].id;render();}
+</script>
+</body>
+</html>
