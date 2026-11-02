@@ -226,7 +226,12 @@ contents.push({
       }
 
       if (!response.ok) {
-        console.error("Gemini HTTP error:", response.status);
+        const errorDetails = await response.text();
+        console.error(
+          "Gemini HTTP error:",
+          response.status,
+          errorDetails.slice(0, 1500)
+        );
         return null;
       }
 
@@ -237,7 +242,16 @@ contents.push({
         .join("\n")
         .trim();
 
-      if (!answer) return null;
+      if (!answer) {
+        console.error(
+          "Gemini returned no answer:",
+          JSON.stringify({
+            promptFeedback: data.promptFeedback,
+            finishReason: data.candidates?.[0]?.finishReason
+          })
+        );
+        return null;
+      }
 
       return {
         text: answer.slice(0, 8000),
