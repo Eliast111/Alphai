@@ -4,7 +4,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="AlphAI ULTRA"
+        android:label="Alpha"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false"
         android:icon="@drawable/alphai_icon">

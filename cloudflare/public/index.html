@@ -989,6 +989,290 @@ html[data-theme="light"] .theme-toggle {
   }
 }
 
+
+/* ALPHA HOME REDESIGN V1 */
+.welcome {
+  width: min(100%, 720px);
+  min-height: auto;
+  margin: auto;
+  padding: 30px 8px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.welcome .orb {
+  width: 132px;
+  height: 132px;
+  margin: 8px auto 12px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 27%, #b9f5ff 0%, #398cff 12%, transparent 34%),
+    radial-gradient(circle at 68% 70%, #a32cff 0%, #3025a8 35%, transparent 67%),
+    radial-gradient(circle at 50% 50%, #07142f 20%, #050817 72%);
+  box-shadow: 0 0 22px #287dff80, 0 0 55px #653cff55,
+              inset 0 0 22px #8bdfff55;
+  border: 1px solid #8fcaff88;
+  animation: alphaOrbFloat 5s ease-in-out infinite;
+}
+
+.welcome .orb::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 1px solid #6b8cff55;
+  box-shadow: 0 0 24px #6255ff55;
+  z-index: -1;
+}
+
+.welcome .orb::after {
+  content: "";
+  position: absolute;
+  width: 145%;
+  height: 38%;
+  border: 2px solid #54caff88;
+  border-left-color: transparent;
+  border-right-color: #a66bff;
+  border-radius: 50%;
+  transform: rotate(-28deg);
+  filter: drop-shadow(0 0 7px #648cff);
+  z-index: -1;
+}
+
+.welcome .orb img {
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px #42baff);
+}
+
+@keyframes alphaOrbFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+.welcome h1 {
+  margin: 5px 0 0;
+  font-size: clamp(29px, 5vw, 39px);
+  letter-spacing: -1.4px;
+}
+
+.welcome p {
+  max-width: 520px;
+  margin: 0 auto 12px;
+  line-height: 1.65;
+}
+
+.quick-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 8px;
+}
+
+.quick-card {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 15px;
+  border-radius: 19px;
+  text-align: left;
+  color: var(--text);
+  background: linear-gradient(145deg, #111d38, #111426);
+  border: 1px solid #536cba66;
+  box-shadow: 0 8px 24px #0002;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+
+.quick-card:hover {
+  transform: translateY(-3px);
+  border-color: #8b7cff;
+  box-shadow: 0 8px 26px #604cff30;
+}
+
+.quick-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  font-size: 21px;
+  font-weight: 800;
+  background: #172b55;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.quick-icon.blue { color: #49aaff; }
+.quick-icon.purple { color: #b36bff; background: #30204e; }
+.quick-icon.cyan { color: #43d4ff; }
+.quick-icon.violet { color: #987aff; background: #29204d; }
+
+.ultra-banner {
+  width: 100%;
+  min-height: 94px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 19px;
+  margin: 8px 0 12px;
+  border-radius: 22px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 92% 50%, #683cff88, transparent 34%),
+    linear-gradient(110deg, #28145c, #101b42 65%, #24105a);
+  border: 1px solid #975cff;
+  box-shadow: 0 8px 28px #5d38ff25;
+  overflow: hidden;
+}
+
+.ultra-crown {
+  color: #ffcb56;
+  font-size: 37px;
+  text-shadow: 0 0 15px #ffb52c88;
+}
+
+.ultra-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ultra-copy strong { font-size: 19px; }
+.ultra-copy span { color: #c5c7ed; font-size: 13px; }
+
+.ultra-cube {
+  margin-left: auto;
+  color: #83d8ff;
+  font-size: 58px;
+  line-height: 1;
+  text-shadow: 0 0 18px #4b8dff;
+}
+
+.home-history {
+  width: 100%;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.home-history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 5px 3px 12px;
+}
+
+.home-history-heading strong { font-size: 17px; }
+.home-history-heading span { color: var(--muted); font-size: 12px; }
+
+.home-recent-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  margin-bottom: 8px;
+  color: var(--text);
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #111a2c;
+}
+
+.home-recent-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: white;
+  background: linear-gradient(135deg, #6d37f5, #a52fff);
+  font-size: 18px;
+}
+
+.home-recent-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+html[data-theme="light"] .quick-card {
+  color: #111b3c;
+  background: linear-gradient(145deg, #fff, #edf0ff);
+  border-color: #cbd5ff;
+}
+
+html[data-theme="light"] .ultra-banner {
+  background:
+    radial-gradient(circle at 92% 50%, #b8a2ff, transparent 36%),
+    linear-gradient(110deg, #e9ddff, #dce8ff);
+  color: #101a3c;
+  border-color: #a78bfa;
+}
+
+html[data-theme="light"] .ultra-copy span { color: #46527b; }
+
+html[data-theme="light"] .home-recent-item {
+  color: #111b3c;
+  background: #fff;
+  border-color: #d3dcf5;
+}
+
+@media (max-width: 720px) {
+  .welcome {
+    padding: 22px 2px 18px;
+    gap: 9px;
+  }
+  .welcome .orb {
+    width: 112px;
+    height: 112px;
+  }
+  .welcome h1 {
+    font-size: 30px;
+    letter-spacing: -1px;
+  }
+  .welcome p { font-size: 14px; }
+  .quick-grid { gap: 9px; }
+  .quick-card {
+    min-height: 70px;
+    padding: 10px;
+    gap: 9px;
+    font-size: 13px;
+    border-radius: 16px;
+  }
+  .quick-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 18px;
+  }
+  .ultra-banner {
+    min-height: 82px;
+    padding: 12px;
+    gap: 10px;
+  }
+  .ultra-copy strong { font-size: 16px; }
+  .ultra-copy span { font-size: 11px; }
+  .ultra-crown { font-size: 30px; }
+  .ultra-cube { font-size: 43px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome .orb { animation: none; }
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
@@ -1021,7 +1305,7 @@ html[data-theme="light"] .theme-toggle {
 </aside>
 <main class="main">
   <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo Alpha"><div><div class="top-title">Alpha</div><div class="sub">O teu assistente inteligente</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-icon.webp" alt="Logótipo Alpha"><div><div class="top-title">Alpha</div><div class="sub">O teu assistente inteligente</div></div></div>
     <div class="top-actions">
       <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">☀️</button>
@@ -1044,14 +1328,50 @@ html[data-theme="light"] .theme-toggle {
     </div>
   </header>
   <section class="chat" id="chat">
+
     <div class="welcome" id="welcome">
-      <div class="orb"><img src="/static/assets/alphai-icon.webp" alt="Símbolo Alpha"></div><h1>Olá, sou a <span class="gradient">Alpha</span>.</h1>
-      <p>Transforma ideias em soluções. Aprende, cria, pesquisa e desenvolve os teus projectos com a Alpha.</p>
-      <div class="suggestions">
-        <button data-prompt="Explica inteligência artificial de forma simples">Explica uma ideia</button>
-        <button data-prompt="O que é programação Python?">Aprender programação</button>
-        <button data-prompt="gera imagem de uma cidade futurista em Maputo">Criar uma imagem</button>
+      <div class="orb">
+        <img src="/static/assets/alphai-icon.webp" alt="Alpha">
       </div>
+
+      <h1>Olá, <span class="gradient" id="welcomeName">Alpha</span>!</h1>
+      <p>Estou aqui para ajudar-te a transformar ideias em possibilidades.</p>
+
+      <div class="quick-grid">
+        <button class="quick-card" data-prompt="Explica-me um assunto de forma simples">
+          <span class="quick-icon blue">✦</span>
+          <span>Explica algo</span>
+        </button>
+        <button class="quick-card" data-prompt="Cria uma imagem de uma paisagem futurista">
+          <span class="quick-icon purple">▧</span>
+          <span>Criar uma imagem</span>
+        </button>
+        <button class="quick-card" data-prompt="Ajuda-me a aprender programação">
+          <span class="quick-icon cyan">&lt;/&gt;</span>
+          <span>Programação</span>
+        </button>
+        <button class="quick-card" data-prompt="Ajuda-me a organizar as minhas tarefas e melhorar a produtividade">
+          <span class="quick-icon violet">↗</span>
+          <span>Produtividade</span>
+        </button>
+      </div>
+
+      <div class="ultra-banner">
+        <div class="ultra-crown">♛</div>
+        <div class="ultra-copy">
+          <strong>Alpha Ultra</strong>
+          <span>Desbloqueia uma experiência avançada</span>
+        </div>
+        <div class="ultra-cube">◇</div>
+      </div>
+
+      <section class="home-history">
+        <div class="home-history-heading">
+          <strong>Histórico recente</strong>
+          <span>As tuas conversas</span>
+        </div>
+        <div id="homeRecentList"></div>
+      </section>
     </div>
     <div id="messages"></div><div class="typing" id="typing" hidden>Alpha está a pensar…</div>
   </section>
@@ -1084,6 +1404,7 @@ const $=id=>document.getElementById(id);
 // Perfil no cabeçalho
 const accountEmail = alphaUser.email || "Conta Alpha";
 const accountName = alphaUser.displayName || "Utilizador Alpha";
+$("welcomeName").textContent = accountName;
 const initial = (alphaUser.displayName || accountEmail || "A").trim().charAt(0).toUpperCase();
 $("headerAvatar").textContent = initial;
 $("menuAvatar").textContent = initial;
@@ -1673,12 +1994,59 @@ function addMessageNode(m){
  $('messages').appendChild(row);
 }
 
+
+function renderHomeRecent(){
+ const host=$("homeRecentList");
+ if(!host)return;
+ host.replaceChildren();
+
+ const recent=conversations
+  .filter(c=>Array.isArray(c.messages)&&c.messages.length>0)
+  .slice()
+  .sort((a,b)=>b.updated-a.updated)
+  .slice(0,2);
+
+ if(!recent.length){
+  const empty=document.createElement("div");
+  empty.className="home-recent-item";
+  empty.textContent="As tuas conversas recentes aparecerão aqui.";
+  host.appendChild(empty);
+  return;
+ }
+
+ recent.forEach(c=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="home-recent-item";
+
+  const icon=document.createElement("span");
+  icon.className="home-recent-icon";
+  icon.textContent="✦";
+
+  const title=document.createElement("span");
+  title.className="home-recent-title";
+  title.textContent=c.title||"Nova conversa";
+
+  const arrow=document.createElement("span");
+  arrow.textContent="›";
+
+  button.append(icon,title,arrow);
+  button.onclick=()=>{
+   activeId=c.id;
+   render();
+   $("sidebar").classList.remove("open");
+  };
+  host.appendChild(button);
+ });
+}
+
 function render(){
  const c=active();
  $('messages').replaceChildren();
  $('welcome').hidden=!!(c&&c.messages.length);
  if(c)c.messages.forEach(addMessageNode);
  renderHistory();
+ renderHomeRecent();
  $('chat').scrollTop=$('chat').scrollHeight;
 }
 
