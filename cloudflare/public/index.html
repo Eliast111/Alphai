@@ -574,7 +574,13 @@ button{cursor:pointer}
   </section>
   <div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve a tua mensagem…" aria-label="Mensagem"></textarea><button id="send" type="submit">Enviar ↑</button></form><div class="disclaimer">A AlphAI pode cometer erros. Verifica informações importantes.</div></div>
 </main>
-<script>
+<script type="module">
+import { initAlphaAuth } from "/auth.js";
+import { db } from "/firebase-config.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+const alphaUser = await initAlphaAuth();
+
 const $=id=>document.getElementById(id);
 
 document.addEventListener('click',async e=>{
@@ -609,7 +615,7 @@ document.addEventListener('click',async e=>{
  }
 });
 
-const STORAGE_KEY='alphai_ultra_conversations_v1';
+const STORAGE_KEY='alphai_ultra_conversations_v1_'+alphaUser.uid;
 let conversations=[], activeId=null, busy=false;
 try{
   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
@@ -620,8 +626,67 @@ try{
     c.messages=c.messages.filter(m=>m&&typeof m==='object'&&['user','assistant'].includes(m.role)).map(m=>({...m,text:typeof m.text==='string'?m.text:''}));
   });
 }catch{conversations=[];}
+// Recupera e combina o histórico remoto com o histórico deste dispositivo.
+try {
+  const remoteSnapshot = await get(
+    ref(db, `users/${alphaUser.uid}/conversations`)
+  );
+
+  const remote = remoteSnapshot.exists() ? remoteSnapshot.val() : [];
+  const merged = new Map();
+
+  if (Array.isArray(remote)) {
+    remote.forEach(c => {
+      if (c && typeof c.id === "string" && Array.isArray(c.messages)) {
+        merged.set(c.id, c);
+      }
+    });
+  }
+
+  conversations.forEach(c => {
+    const previous = merged.get(c.id);
+    if (!previous || (c.updated || 0) >= (previous.updated || 0)) {
+      merged.set(c.id, c);
+    }
+  });
+
+  conversations = [...merged.values()]
+    .sort((a,b) => (b.updated || 0) - (a.updated || 0))
+    .slice(0,50);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+
+  // Publica a combinação local e remota no Firebase.
+  if (conversations.length) {
+    await set(
+      ref(db, `users/${alphaUser.uid}/conversations`),
+      conversations.slice(0,50)
+    );
+  }
+
+  console.log("Histórico Firebase sincronizado.");
+} catch(error) {
+  console.error("Não foi possível recuperar o histórico Firebase:", error);
+}
+
 function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(conversations.slice(0,50)));}catch{}}
+let syncQueue = Promise.resolve();
+
+function save(){
+  const snapshot = conversations.slice(0,50);
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  } catch(error) {
+    console.error("Erro ao guardar histórico local:", error);
+  }
+
+  syncQueue = syncQueue
+    .then(() => set(ref(db, `users/${alphaUser.uid}/conversations`), snapshot))
+    .catch(error => {
+      console.error("Erro ao sincronizar conversas Firebase:", error);
+    });
+}
 function active(){return conversations.find(c=>c.id===activeId)}
 function createChat(){const c={id:id(),title:'Nova conversa',messages:[],updated:Date.now()};conversations.unshift(c);activeId=c.id;save();render();$('sidebar').classList.remove('open');$('prompt').focus();}
 
@@ -794,7 +859,15 @@ async function sendMessage(text){
  try{
   const c=active();
   const context=c.messages.slice(-13,-1).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.text})).filter(m=>m.content);
-  const res=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:text,history:context})});
+  const token = await window.alphaGetIdToken();
+  const res=await fetch('/ask',{
+   method:'POST',
+   headers:{
+    'Content-Type':'application/json',
+    'Authorization':`Bearer ${token}`
+   },
+   body:JSON.stringify({q:text,history:context})
+  });
   let data;try{data=await res.json()}catch{throw new Error('O servidor devolveu uma resposta inválida.')}
   if(!res.ok)throw new Error(data.error||'Não foi possível obter resposta.');
   pushMessage('assistant',data.text||'Não consegui gerar uma resposta.',{image_url:data.image_url||null,prompt:data.prompt||null,sources:Array.isArray(data.sources)?data.sources:[]});

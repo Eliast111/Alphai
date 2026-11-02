@@ -261,7 +261,54 @@ async function askAI(question, history, env) {
   return await askGemini(question, history, env);
 }
 
+
+async function verifyFirebaseUser(request, env) {
+  if (!env.FIREBASE_API_KEY) {
+    return { error: "Firebase API key não configurada.", status: 503 };
+  }
+
+  const header = request.headers.get("Authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) {
+    return { error: "Autenticação necessária.", status: 401 };
+  }
+
+  try {
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(env.FIREBASE_API_KEY)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: match[1] })
+      }
+    );
+
+    if (!response.ok) {
+      return { error: "Sessão inválida ou expirada.", status: 401 };
+    }
+
+    const data = await response.json();
+    const uid = data.users?.[0]?.localId;
+
+    if (!uid) {
+      return { error: "Utilizador não autenticado.", status: 401 };
+    }
+
+    return { uid, token: match[1] };
+  } catch (error) {
+    console.error("Firebase verification failed:", error.message);
+    return { error: "Não foi possível validar a sessão.", status: 503 };
+  }
+}
+
 async function handleAsk(request, env) {
+  const user = await verifyFirebaseUser(request, env);
+
+  if (!user.uid) {
+    return json({ error: user.error }, user.status);
+  }
+
   let payload;
 
   try {
