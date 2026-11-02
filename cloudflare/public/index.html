@@ -687,6 +687,308 @@ html[data-theme="light"] .profile-menu>button:hover{background:#edf0ff}
   .profile-menu{right:0}
 }
 
+
+/* ALPHA PREMIUM VISUAL V2 */
+
+:root {
+  --accent: #8067ff;
+  --accent2: #36c8ff;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -15%, #253c70 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 80%, #25194b55, transparent 40%),
+    #070b16;
+  letter-spacing: .01em;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #0d1527f5, #090e1bf5);
+  border-right: 1px solid #34415e88;
+  backdrop-filter: blur(22px);
+}
+
+.brand {
+  font-size: 21px;
+  letter-spacing: -.6px;
+}
+
+.brand-logo,
+.workspace-logo {
+  filter: drop-shadow(0 0 12px #42bfff66);
+}
+
+.new {
+  border-radius: 15px;
+  padding: 13px;
+  background: linear-gradient(115deg, #258fe5, #7555ed);
+  box-shadow: 0 8px 25px #5145cf35;
+}
+
+.history button {
+  border-radius: 12px;
+  padding: 11px;
+  transition: .2s ease;
+}
+
+.history button:hover {
+  background: #ffffff0b;
+  border-color: #7565d855;
+}
+
+.topbar {
+  background: #0a1020b8;
+  border-bottom-color: #34415e88;
+  backdrop-filter: blur(22px);
+}
+
+.top-title {
+  letter-spacing: -.3px;
+}
+
+.chat {
+  max-width: 960px;
+  padding-top: 35px;
+}
+
+.welcome {
+  min-height: 58%;
+  gap: 5px;
+}
+
+.welcome .orb {
+  width: 104px;
+  height: 104px;
+  position: relative;
+  isolation: isolate;
+}
+
+.welcome .orb::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #398dff45, #7755ff20 55%, transparent 72%);
+  filter: blur(12px);
+}
+
+.welcome .orb img {
+  filter: drop-shadow(0 0 20px #4cbaff88);
+}
+
+.welcome h1 {
+  font-size: clamp(32px, 6vw, 48px);
+  font-weight: 850;
+  letter-spacing: -2px;
+  margin-top: 20px;
+}
+
+.gradient {
+  background: linear-gradient(100deg, #62d8ff 5%, #a99aff 55%, #e0aaff);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.welcome p {
+  max-width: 540px;
+  line-height: 1.8;
+}
+
+.suggestions {
+  gap: 11px;
+  margin-top: 28px;
+}
+
+.suggestions button {
+  background: linear-gradient(145deg, #17243b, #111a2d);
+  border: 1px solid #52658a66;
+  border-radius: 16px;
+  padding: 12px 16px;
+  color: #e3eaff;
+  box-shadow: 0 5px 18px #0002;
+}
+
+.suggestions button:hover {
+  background: linear-gradient(145deg, #253b60, #29244c);
+  border-color: #8b7cff;
+  transform: translateY(-2px);
+}
+
+.msg {
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.avatar {
+  border-radius: 13px;
+  box-shadow: 0 4px 15px #0002;
+}
+
+.content {
+  border-radius: 7px 19px 19px 19px;
+  padding: 15px 18px;
+  background: linear-gradient(145deg, #141f33, #101827);
+  border-color: #354563aa;
+  line-height: 1.75;
+}
+
+.user .content {
+  background: linear-gradient(130deg, #244d80, #443878);
+  border-color: #7185c588;
+  border-radius: 19px 7px 19px 19px;
+}
+
+.composer-wrap {
+  padding-top: 17px;
+  background: linear-gradient(transparent, #080d18 28%);
+}
+
+.composer {
+  border-radius: 25px;
+  padding: 10px;
+  background: #111a2b;
+  border: 1px solid #52658b88;
+  box-shadow: 0 12px 45px #0005, 0 0 22px #6555d415;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.composer:focus-within {
+  border-color: #8170ff;
+  box-shadow: 0 12px 45px #0005, 0 0 22px #7565ff30;
+}
+
+.composer textarea {
+  padding: 12px;
+}
+
+.composer button {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #35bdf4, #7860f5);
+  box-shadow: 0 5px 18px #6555e044;
+}
+
+.theme-toggle {
+  background: #172238;
+  border-color: #465778;
+}
+
+.profile-trigger {
+  box-shadow: 0 4px 16px #7255ed55;
+}
+
+.profile-menu {
+  backdrop-filter: blur(20px);
+  border-color: #52658b88;
+  border-radius: 20px;
+}
+
+.attachment-preview {
+  border-radius: 16px;
+  box-shadow: 0 8px 25px #0003;
+}
+
+.markdown-rendered pre {
+  border-radius: 15px;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 720px) {
+  .chat {
+    padding: 22px 13px 18px;
+  }
+
+  .welcome {
+    min-height: 52%;
+    padding: 22px 4px;
+  }
+
+  .welcome .orb {
+    width: 88px;
+    height: 88px;
+  }
+
+  .welcome h1 {
+    font-size: 32px;
+    letter-spacing: -1.3px;
+  }
+
+  .suggestions {
+    gap: 9px;
+    margin-top: 22px;
+  }
+
+  .suggestions button {
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .content {
+    max-width: 88%;
+    padding: 12px 14px;
+  }
+
+  .composer {
+    border-radius: 21px;
+  }
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse at 50% -15%, #d7e4ff, transparent 52%),
+    #f5f7ff;
+}
+
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .topbar {
+  background: #ffffffed;
+}
+
+html[data-theme="light"] .suggestions button {
+  background: linear-gradient(145deg, #fff, #f0f2ff);
+  color: #253452;
+  border-color: #dce1f2;
+}
+
+html[data-theme="light"] .suggestions button:hover {
+  background: #e9eaff;
+  border-color: #9888f5;
+}
+
+html[data-theme="light"] .content {
+  background: #fff;
+  border-color: #e0e5f3;
+}
+
+html[data-theme="light"] .user .content {
+  background: linear-gradient(135deg, #dceaff, #e9e2ff);
+}
+
+html[data-theme="light"] .composer-wrap {
+  background: linear-gradient(transparent, #f5f7ff 28%);
+}
+
+html[data-theme="light"] .composer {
+  background: #fff;
+  border-color: #dce1f2;
+}
+
+html[data-theme="light"] .theme-toggle {
+  background: #f0f2ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
