@@ -41,6 +41,12 @@ function showLogin() {
         background:#111522;
       }
       .alpha-auth-card h2 {margin:0 0 8px}
+
+      .auth-brand{display:flex;align-items:center;gap:12px}
+      .auth-brand img{width:46px;height:46px;object-fit:contain}
+      .auth-brand h2{margin:0}
+      .auth-company{margin-top:22px;text-align:center;color:#8e9ab3;font-size:12px}
+
       .alpha-auth-card p {color:#aab2c5}
       .alpha-auth-card input {
         box-sizing:border-box;
@@ -73,7 +79,7 @@ function showLogin() {
     </style>
 
     <div class="alpha-auth-card">
-      <h2>Alpha</h2>
+      <div class="auth-brand"><img src="/static/assets/alphai-icon.webp" alt="Alpha"><h2>Alpha</h2></div>
       <p id="alpha-auth-description">
         Entra na tua conta para continuar.
       </p>
@@ -96,6 +102,7 @@ function showLogin() {
       <button id="alpha-auth-toggle" type="button">
         Criar uma conta
       </button>
+    <div class="auth-company">Alpha Technologies</div>
     </div>
   `;
 

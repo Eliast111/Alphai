@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>AlphAI ULTRA</title>
+<title>Alpha | Alpha Technologies</title>
 <link rel="icon" type="image/webp" href="/static/assets/alphai-icon.webp">
 <style>
 
@@ -542,6 +542,111 @@ button{cursor:pointer}
   mix-blend-mode:screen;
 }
 
+
+/* ===== ALPHA TECHNOLOGIES: PERFIL E TEMAS ===== */
+:root {
+  --accent: #765cff;
+  --accent2: #28b7ef;
+}
+.top-actions{display:flex;align-items:center;gap:15px}
+.theme-toggle{
+  width:39px;height:39px;border-radius:12px;
+  border:1px solid var(--line);background:var(--panel);
+  color:var(--text);font-size:17px;
+}
+.account-card{
+  padding:12px;border:1px solid var(--line);
+  border-radius:16px;background:var(--panel);
+}
+.account-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.account-avatar{
+  width:38px;height:38px;flex:0 0 38px;border-radius:13px;
+  display:grid;place-items:center;color:white;font-weight:800;
+  background:linear-gradient(135deg,#28b7ef,#765cff);
+}
+.account-info{display:flex;flex-direction:column;min-width:0;flex:1}
+.account-info strong{font-size:13px}
+.account-info span{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.account-online{width:9px;height:9px;border-radius:50%;background:#35d995;box-shadow:0 0 10px #35d995}
+.account-actions{display:flex;gap:7px;margin-top:11px}
+.account-actions button{
+  flex:1;padding:8px 5px;border:1px solid var(--line);
+  border-radius:9px;background:var(--panel2);color:var(--text);font-size:11px;
+}
+.account-actions button:last-child{color:#ed777e}
+.sidebar-foot{display:flex;flex-direction:column;gap:3px}
+.sidebar-foot strong{color:var(--text);font-size:12px}
+.sidebar-foot span{font-size:11px}
+.brand{color:var(--text)}
+.brand-logo,.workspace-logo{filter:drop-shadow(0 0 9px #765cff55)}
+.welcome .orb img{filter:drop-shadow(0 0 16px #765cff70)}
+.composer button{color:white}
+button{transition:background .2s,border-color .2s,transform .2s}
+button:active{transform:scale(.97)}
+
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f4f6ff;
+  --panel:#ffffff;
+  --panel2:#edf0ff;
+  --line:#dce1f2;
+  --text:#172039;
+  --muted:#69748e;
+  --blue:#287ee8;
+  --purple:#765cff;
+}
+html[data-theme="light"] body{
+  background:radial-gradient(ellipse at top,#e3eaff 0,#f7f8ff 60%);
+  color:var(--text);
+}
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .topbar{
+  background:#ffffffdc;
+}
+html[data-theme="light"] .content{
+  background:#fff;color:#172039;
+}
+html[data-theme="light"] .user .content{
+  background:linear-gradient(135deg,#dceaff,#e9e2ff);
+  color:#172039;border-color:#cbd7f5;
+}
+html[data-theme="light"] .suggestions button,
+html[data-theme="light"] .account-actions button{
+  background:#fff;color:#263452;
+}
+html[data-theme="light"] .suggestions button:hover{
+  background:#edf0ff;border-color:#a9a0ff;
+}
+html[data-theme="light"] .composer-wrap{
+  background:linear-gradient(transparent,#f7f8ff 20%);
+}
+html[data-theme="light"] .composer{
+  background:#fff;border-color:#dce1f2;
+  box-shadow:0 10px 35px #26345b12;
+}
+html[data-theme="light"] .composer textarea{color:#172039}
+html[data-theme="light"] .markdown-rendered h1,
+html[data-theme="light"] .markdown-rendered h2,
+html[data-theme="light"] .markdown-rendered h3,
+html[data-theme="light"] .markdown-rendered h4,
+html[data-theme="light"] .markdown-rendered strong{color:#172039}
+html[data-theme="light"] .markdown-rendered blockquote{
+  background:#edf1ff;color:#35415e;
+}
+html[data-theme="light"] .markdown-rendered pre{
+  background:#172039;border-color:#35445e;
+}
+html[data-theme="light"] .markdown-rendered th{background:#e8edff}
+html[data-theme="light"] .markdown-rendered tr:nth-child(even){background:#f0f3ff}
+html[data-theme="light"] .markdown-rendered td{border-color:#dce1f2}
+html[data-theme="light"] .mobile-menu{color:var(--text)}
+html[data-theme="light"] .history button{color:#35415e}
+html[data-theme="light"] .history button:hover{background:#edf0ff}
+@media(max-width:720px){
+  .account-card{margin-top:8px}
+  .top-actions{gap:9px}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
@@ -549,30 +654,50 @@ button{cursor:pointer}
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="AlphAI"><div>AlphAI <span class="sub">ULTRA</span></div></div>
+  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="Alpha"><div>Alpha</div></div>
   <button class="new" id="newChat">＋ Nova conversa</button>
   <div class="side-label">Conversas neste dispositivo</div>
   <div class="history" id="history"></div>
-  <div class="sidebar-foot">O teu espaço de trabalho inteligente. As conversas ficam guardadas neste dispositivo.</div>
+  <section class="account-card">
+    <div class="account-heading">
+      <div class="account-avatar" id="accountAvatar">A</div>
+      <div class="account-info">
+        <strong id="accountName">A tua conta</strong>
+        <span id="accountEmail">A carregar conta...</span>
+      </div>
+      <span class="account-online" title="Sessão ativa"></span>
+    </div>
+    <div class="account-actions">
+      <button id="profileButton" type="button">Perfil</button>
+      <button id="logoutButton" type="button">Terminar sessão</button>
+    </div>
+  </section>
+  <div class="sidebar-foot">
+    <strong>Alpha Technologies</strong>
+    <span>Inteligência para novas possibilidades.</span>
+  </div>
 </aside>
 <main class="main">
   <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo AlphAI"><div><div class="top-title">AlphAI Workspace</div><div class="sub">O teu assistente inteligente</div></div></div>
-    <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo Alpha"><div><div class="top-title">Alpha</div><div class="sub">O teu assistente inteligente</div></div></div>
+    <div class="top-actions">
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">☀️</button>
+      <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
+    </div>
   </header>
   <section class="chat" id="chat">
     <div class="welcome" id="welcome">
-      <div class="orb"><img src="/static/assets/alphai-icon.webp" alt="Símbolo AlphAI"></div><h1>Olá, sou a <span class="gradient">AlphAI</span>.</h1>
-      <p>Transforma ideias em soluções. Aprende, cria, pesquisa e desenvolve os teus projectos com a AlphAI.</p>
+      <div class="orb"><img src="/static/assets/alphai-icon.webp" alt="Símbolo Alpha"></div><h1>Olá, sou a <span class="gradient">Alpha</span>.</h1>
+      <p>Transforma ideias em soluções. Aprende, cria, pesquisa e desenvolve os teus projectos com a Alpha.</p>
       <div class="suggestions">
         <button data-prompt="Explica inteligência artificial de forma simples">Explica uma ideia</button>
         <button data-prompt="O que é programação Python?">Aprender programação</button>
         <button data-prompt="gera imagem de uma cidade futurista em Maputo">Criar uma imagem</button>
       </div>
     </div>
-    <div id="messages"></div><div class="typing" id="typing" hidden>AlphAI está a pensar…</div>
+    <div id="messages"></div><div class="typing" id="typing" hidden>Alpha está a pensar…</div>
   </section>
-  <div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve a tua mensagem…" aria-label="Mensagem"></textarea><button id="send" type="submit">Enviar ↑</button></form><div class="disclaimer">A AlphAI pode cometer erros. Verifica informações importantes.</div></div>
+  <div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve a tua mensagem…" aria-label="Mensagem"></textarea><button id="send" type="submit">Enviar ↑</button></form><div class="disclaimer">A Alpha pode cometer erros. Verifica informações importantes.</div></div>
 </main>
 <script type="module">
 import { initAlphaAuth } from "/auth.js";
@@ -581,7 +706,48 @@ import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.10.0/fireba
 
 const alphaUser = await initAlphaAuth();
 
+
 const $=id=>document.getElementById(id);
+
+// Perfil da conta autenticada
+const accountEmail = alphaUser.email || "Conta Alpha";
+$('accountEmail').textContent = accountEmail;
+$('accountName').textContent = alphaUser.displayName || "Utilizador Alpha";
+$('accountAvatar').textContent =
+  (alphaUser.displayName || accountEmail || "A").trim().charAt(0).toUpperCase();
+
+$('profileButton').onclick = () => {
+  alert("Conta ativa: " + accountEmail);
+};
+
+$('logoutButton').onclick = async () => {
+  if (confirm("Queres terminar a sessão da Alpha?")) {
+    await window.alphaSignOut();
+  }
+};
+
+// Tema claro/escuro, com preferência guardada neste dispositivo
+const THEME_KEY = "alpha_theme_preference";
+function applyAlphaTheme(theme) {
+  const selected = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = selected;
+  $('themeToggle').textContent = selected === "dark" ? "☀️" : "🌙";
+  $('themeToggle').setAttribute(
+    "aria-label",
+    selected === "dark" ? "Ativar modo claro" : "Ativar modo escuro"
+  );
+  document.querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", selected === "dark" ? "#080d18" : "#f4f6ff");
+}
+let savedTheme = "dark";
+try { savedTheme = localStorage.getItem(THEME_KEY) || "dark"; } catch {}
+applyAlphaTheme(savedTheme);
+$('themeToggle').onclick = () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyAlphaTheme(next);
+  try { localStorage.setItem(THEME_KEY, next); } catch {}
+};
+
 
 document.addEventListener('click',async e=>{
  const button=e.target.closest('.copy-code');
@@ -793,7 +959,7 @@ function addMessageNode(m){
  if(m.image_url){
   const img=document.createElement('img');
   img.src=m.image_url;
-  img.alt='Imagem gerada pela AlphAI';
+  img.alt='Imagem gerada pela Alpha';
   img.loading='lazy';
   img.referrerPolicy='no-referrer';
 
