@@ -151,7 +151,7 @@ async function askGroq(question, history, env) {
   }
 }
 
-async function askGemini(question, history, env) {
+async function askGemini(question, history, env, image = null) {
   if (!env.GEMINI_API_KEY) return null;
 
   const model = env.GEMINI_MODEL || "gemini-3.8-flash";
@@ -173,12 +173,16 @@ async function askGemini(question, history, env) {
     }
   }
 
-  if (contents.length && contents.at(-1).role === "user") {
-    contents.at(-1).parts[0].text += "\n" + question;
-  } else {
-    contents.push({
-      role: "user",
-      parts: [{ text: question }]
+contents.push({
+  role: "user",
+  parts: [{ text: question }]
+});
+  if (image && contents.length && contents.at(-1).role === "user") {
+    contents.at(-1).parts.push({
+      inlineData: {
+        mimeType: image.mimeType,
+        data: image.data
+      }
     });
   }
 
@@ -254,7 +258,10 @@ async function askGemini(question, history, env) {
   return null;
 }
 
-async function askAI(question, history, env) {
+async function askAI(question, history, env, image = null) {
+  // Imagens são encaminhadas ao modelo com capacidade visual.
+  if (image) return await askGemini(question, history, env, image);
+
   const groq = await askGroq(question, history, env);
   if (groq) return groq;
 
@@ -328,34 +335,77 @@ async function handleAsk(request, env) {
   }
 
   const q = question.trim();
-  const history = cleanHistory(payload.history);
+  let image = null;
 
-  const image = imagePrompt(q);
+  if (payload.image != null) {
+    const candidate = payload.image;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-  if (image) {
-    return json({
-      text: "A tua imagem está pronta para ser gerada.",
-      image_url: makeImageUrl(image),
-      prompt: image,
-      sources: []
-    });
+    if (
+      !candidate ||
+      !allowedTypes.includes(candidate.mimeType) ||
+      typeof candidate.data !== "string" ||
+      candidate.data.length > 7_000_000 ||
+      !/^[A-Za-z0-9+/]+={0,2}$/.test(candidate.data)
+    ) {
+      return json({ error: "Imagem inválida ou demasiado grande." }, 400);
+    }
+
+    const base64Data = candidate.data;
+    const padding = base64Data.endsWith("==") ? 2 :
+      base64Data.endsWith("=") ? 1 : 0;
+    const decodedBytes = Math.floor(base64Data.length * 3 / 4) - padding;
+
+    if (base64Data.length % 4 !== 0 || decodedBytes > 5 * 1024 * 1024) {
+      return json({error:"Imagem inválida ou demasiado grande."},400);
+    }
+
+    image = { mimeType: candidate.mimeType, data: candidate.data };
   }
 
-  if (isGreeting(q)) {
-    return json({
-      text: "Olá! Sou a AlphAI ULTRA. Como posso ajudar-te hoje?",
-      sources: []
-    });
+
+const history = cleanHistory(payload.history);
+
+// Se existir uma imagem, analisar primeiro.
+if (image) {
+  const imageResult = await askAI(q, history, env, image);
+
+  if (imageResult) {
+    return json(imageResult);
   }
 
-  if (isThanks(q)) {
-    return json({
-      text: "De nada! Estou aqui para ajudar.",
-      sources: []
-    });
-  }
+  return json({
+    text: "Não consegui analisar esta imagem neste momento. Tenta novamente mais tarde.",
+    sources: []
+  }, 503);
+}
 
-  const result = await askAI(q, history, env);
+const generatedImage = imagePrompt(q);
+
+if (generatedImage) {
+  return json({
+    text: "A tua imagem está pronta para ser gerada.",
+    image_url: makeImageUrl(generatedImage),
+    prompt: generatedImage,
+    sources: []
+  });
+}
+
+if (isGreeting(q)) {
+  return json({
+    text: "Olá! Sou a AlphAI ULTRA. Como posso ajudar-te hoje?",
+    sources: []
+  });
+}
+
+if (isThanks(q)) {
+  return json({
+    text: "De nada! Estou aqui para ajudar.",
+    sources: []
+  });
+}
+
+  const result = await askAI(q, history, env, image);
 
   if (result) return json(result);
 

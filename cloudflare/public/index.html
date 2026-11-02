@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt">
 <head>
@@ -647,6 +646,47 @@ html[data-theme="light"] .history button:hover{background:#edf0ff}
   .top-actions{gap:9px}
 }
 
+
+/* ===== NOVO DESIGN ALPHA ===== */
+.sidebar .account-card{display:none}
+.brand{gap:12px}
+.brand:after{content:"Alpha Technologies";display:block;font-size:11px;font-weight:400;color:var(--muted);margin-left:-53px;margin-top:28px}
+.top-actions{position:relative;gap:12px}
+.theme-toggle,.profile-trigger{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);
+  background:var(--panel);color:var(--text);display:grid;place-items:center
+}
+.profile-trigger{border:0;background:linear-gradient(135deg,#6d35f5,#3820c9);color:white;font-weight:800;font-size:17px}
+.profile-menu{
+  position:absolute;right:0;top:52px;width:min(290px,85vw);z-index:1000;
+  padding:15px;border:1px solid var(--line);border-radius:18px;
+  background:var(--panel);box-shadow:0 16px 45px #0005
+}
+.profile-menu[hidden]{display:none}
+.profile-menu-heading{display:flex;align-items:center;gap:11px}
+.profile-menu-heading>div{min-width:0;display:flex;flex-direction:column}
+.profile-menu-heading small{color:var(--muted);overflow-wrap:anywhere;font-size:11px}
+.profile-menu-avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#28b7ef,#765cff);color:white;font-weight:800}
+.session-label{font-size:11px;color:#35c98a;margin:12px 0;padding:7px;background:#35c98a18;border-radius:9px}
+.profile-menu>button{display:block;width:100%;padding:10px;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--text)}
+.profile-menu>button:hover{background:var(--panel2)}
+#headerLogout{color:#ef6978;border-top:1px solid var(--line);margin-top:7px}
+.attachment-preview{max-width:900px;margin:0 auto 9px;padding:8px 42px 8px 9px;position:relative;width:max-content;max-width:100%;border:1px solid var(--line);border-radius:13px;background:var(--panel);display:flex;align-items:center;gap:10px}
+.attachment-preview[hidden]{display:none}
+.attachment-preview img{width:58px;height:58px;object-fit:cover;border-radius:9px}
+.attachment-preview div{font-size:12px;overflow-wrap:anywhere}
+.attachment-preview button{position:absolute;right:8px;top:8px;border:0;border-radius:50%;width:25px;height:25px;background:var(--panel2);color:var(--text)}
+.attach-button{font-size:24px!important;padding:5px 12px!important;background:transparent!important;color:var(--muted)!important}
+html[data-theme="light"] .profile-menu{background:#fff;box-shadow:0 16px 45px #26345b20}
+html[data-theme="light"] .profile-menu>button{color:#172039}
+html[data-theme="light"] .profile-menu>button:hover{background:#edf0ff}
+@media(max-width:720px){
+  .topbar{gap:6px}
+  .top-actions{gap:7px}
+  .status{font-size:10px}
+  .profile-menu{right:0}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
@@ -681,8 +721,24 @@ html[data-theme="light"] .history button:hover{background:#edf0ff}
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu">☰</button><img class="workspace-logo" src="/static/assets/alphai-logo.webp" alt="Logótipo Alpha"><div><div class="top-title">Alpha</div><div class="sub">O teu assistente inteligente</div></div></div>
     <div class="top-actions">
-      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">☀️</button>
       <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema">☀️</button>
+      <div class="profile-area">
+        <button id="headerProfileButton" class="profile-trigger" type="button" aria-label="Abrir perfil">
+          <span id="headerAvatar">A</span>
+        </button>
+        <div id="profileMenu" class="profile-menu" hidden>
+          <div class="profile-menu-heading">
+            <span class="profile-menu-avatar" id="menuAvatar">A</span>
+            <div><strong id="menuName">Utilizador Alpha</strong><small id="menuEmail"></small></div>
+          </div>
+          <div class="session-label">● Sessão ativa</div>
+          <button type="button" id="menuProfile">Perfil</button>
+          <button type="button" id="menuSettings">Definições</button>
+          <button type="button" id="menuHistory">Histórico</button>
+          <button type="button" id="headerLogout">Terminar sessão</button>
+        </div>
+      </div>
     </div>
   </header>
   <section class="chat" id="chat">
@@ -697,27 +753,197 @@ html[data-theme="light"] .history button:hover{background:#edf0ff}
     </div>
     <div id="messages"></div><div class="typing" id="typing" hidden>Alpha está a pensar…</div>
   </section>
-  <div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve a tua mensagem…" aria-label="Mensagem"></textarea><button id="send" type="submit">Enviar ↑</button></form><div class="disclaimer">A Alpha pode cometer erros. Verifica informações importantes.</div></div>
+  <div class="composer-wrap">
+    <div id="attachmentPreview" class="attachment-preview" hidden>
+      <img id="attachmentImage" alt="Pré-visualização do anexo">
+      <div id="attachmentName"></div>
+      <button id="removeAttachment" type="button" aria-label="Remover anexo">×</button>
+    </div>
+    <form class="composer" id="form">
+      <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <button id="attachButton" class="attach-button" type="button" aria-label="Anexar imagem">＋</button>
+      <textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve uma mensagem ou anexa uma imagem…" aria-label="Mensagem"></textarea>
+      <button id="send" type="submit">Enviar ↑</button>
+    </form>
+    <div class="disclaimer">A Alpha pode cometer erros. Verifica informações importantes.</div>
+  </div>
 </main>
 <script type="module">
 import { initAlphaAuth } from "/auth.js";
 import { db } from "/firebase-config.js";
-import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { ref, get, set, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
 const alphaUser = await initAlphaAuth();
 
 
+
 const $=id=>document.getElementById(id);
 
-// Perfil da conta autenticada
+// Perfil no cabeçalho
 const accountEmail = alphaUser.email || "Conta Alpha";
-$('accountEmail').textContent = accountEmail;
+const accountName = alphaUser.displayName || "Utilizador Alpha";
+const initial = (alphaUser.displayName || accountEmail || "A").trim().charAt(0).toUpperCase();
+$("headerAvatar").textContent = initial;
+$("menuAvatar").textContent = initial;
+$("menuName").textContent = accountName;
+$("menuEmail").textContent = accountEmail;
+$("headerProfileButton").onclick = () => {
+  $("profileMenu").hidden = !$("profileMenu").hidden;
+};
+document.addEventListener("click", event => {
+  if (!event.target.closest(".profile-area")) $("profileMenu").hidden = true;
+});
+$("menuProfile").onclick = () => alert("Conta ativa: " + accountEmail);
+$("menuSettings").onclick = () => $("themeToggle").click();
+$("menuHistory").onclick = () => {
+  $("sidebar").classList.add("open");
+  $("profileMenu").hidden = true;
+};
+$("headerLogout").onclick = async () => {
+  if (!confirm("Queres terminar a sessão?")) return;
+  await window.alphaSignOut();
+  location.reload();
+};
+
+// Tema guardado neste dispositivo
+let currentTheme = "dark";
+try { currentTheme = localStorage.getItem("alpha_theme") || "dark"; } catch {}
+document.documentElement.dataset.theme = currentTheme;
+$("themeToggle").textContent = currentTheme === "dark" ? "☀️" : "🌙";
+$("themeToggle").onclick = () => {
+  currentTheme = currentTheme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = currentTheme;
+  $("themeToggle").textContent = currentTheme === "dark" ? "☀️" : "🌙";
+  try { localStorage.setItem("alpha_theme", currentTheme); } catch {}
+};
+
+
+// Anexo de imagem
+let selectedImage = null;
+let selectedImageData = null;
+let selectedImagePreview = null;
+
+$("attachButton").onclick = () => $("imageInput").click();
+
+$("imageInput").onchange = async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowed.includes(file.type)) {
+    alert("Formato não suportado. Escolhe JPG, PNG ou WebP.");
+    event.target.value = "";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("A imagem deve ter no máximo 5 MB.");
+    event.target.value = "";
+    return;
+  }
+
+  clearAttachment();
+
+  try {
+    const imageData = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const data = result.split(",")[1];
+
+        if (!data) {
+          reject(new Error("Não foi possível ler a imagem."));
+          return;
+        }
+
+        resolve(data);
+      };
+
+      reader.onerror = () => reject(
+        new Error("Falha ao ler o ficheiro.")
+      );
+
+      reader.readAsDataURL(file);
+    });
+
+    const preview = await new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      img.onload = () => {
+        try {
+          const scale = Math.min(
+            1,
+            480 / Math.max(img.width, img.height)
+          );
+
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+
+          const context = canvas.getContext("2d");
+
+          if (!context) {
+            throw new Error("Não foi possível criar a pré-visualização.");
+          }
+
+          context.drawImage(
+            img, 0, 0, canvas.width, canvas.height
+          );
+
+          resolve(canvas.toDataURL("image/jpeg", 0.65));
+        } catch (error) {
+          reject(error);
+        } finally {
+          URL.revokeObjectURL(objectUrl);
+        }
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("Não foi possível abrir a imagem."));
+      };
+
+      img.src = objectUrl;
+    });
+
+    selectedImage = file;
+    selectedImageData = imageData;
+    selectedImagePreview = preview;
+
+    $("attachmentImage").src = preview;
+    $("attachmentName").textContent = file.name;
+    $("attachmentPreview").hidden = false;
+
+  } catch (error) {
+    clearAttachment();
+    alert(error.message || "Não foi possível carregar a imagem.");
+  }
+};
+
+function clearAttachment() {
+  selectedImage = null;
+  selectedImageData = null;
+  selectedImagePreview = null;
+  $("imageInput").value = "";
+  $("attachmentPreview").hidden = true;
+  $("attachmentImage").removeAttribute("src");
+}
+
+$("removeAttachment").onclick = clearAttachment;
+
+
+// Perfil da conta autenticada
+const profileAccountEmail = alphaUser.email || "Conta Alpha";
+$('accountEmail').textContent = profileAccountEmail;
 $('accountName').textContent = alphaUser.displayName || "Utilizador Alpha";
 $('accountAvatar').textContent =
-  (alphaUser.displayName || accountEmail || "A").trim().charAt(0).toUpperCase();
+  (alphaUser.displayName || profileAccountEmail || "A").trim().charAt(0).toUpperCase();
 
 $('profileButton').onclick = () => {
-  alert("Conta ativa: " + accountEmail);
+  alert("Conta ativa: " + profileAccountEmail);
 };
 
 $('logoutButton').onclick = async () => {
@@ -792,67 +1018,193 @@ try{
     c.messages=c.messages.filter(m=>m&&typeof m==='object'&&['user','assistant'].includes(m.role)).map(m=>({...m,text:typeof m.text==='string'?m.text:''}));
   });
 }catch{conversations=[];}
-// Recupera e combina o histórico remoto com o histórico deste dispositivo.
+function remoteConversationsSnapshot(items){
+  return items.slice(0,50).map(c => ({
+    ...c,
+    messages: c.messages.map(m => {
+      const { attachmentPreview, ...message } = m;
+      return message;
+    })
+  }));
+}
+
+
+// Junta conversas e mensagens sem substituir conteúdo existente.
+
+function legacyMessageId(conversationId, index, message) {
+  const source = `${conversationId}|${index}|${message.role}|${message.text || ""}`;
+  let hash = 2166136261;
+
+  for (let i = 0; i < source.length; i++) {
+    hash ^= source.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return "legacy_" + (hash >>> 0).toString(36);
+}
+
+function migrateLegacyMessageIds(remote, local) {
+  if (!Array.isArray(remote)) return [];
+
+  return remote.map(conversation => {
+    if (!conversation || !Array.isArray(conversation.messages)) return conversation;
+
+    const localConversation = Array.isArray(local)
+      ? local.find(item => item?.id === conversation.id)
+      : null;
+
+    return {
+      ...conversation,
+      messages: conversation.messages.map((message, index) => {
+        if (!message || message.id) return message;
+
+        const localMessage = localConversation?.messages?.[index];
+
+        const matchingMessage =
+          localMessage &&
+          localMessage.role === message.role &&
+          localMessage.text === message.text &&
+          typeof localMessage.id === "string";
+
+        return {
+          ...message,
+          id: matchingMessage
+            ? localMessage.id
+            : legacyMessageId(conversation.id, index, message)
+        };
+      })
+    };
+  });
+}
+
+function mergeConversationLists(first, second) {
+  const merged = new Map();
+  const normalizedFirst = migrateLegacyMessageIds(first, second);
+
+  for (const source of [normalizedFirst, second]) {
+    if (!Array.isArray(source)) continue;
+
+    for (const item of source) {
+      if (!item || typeof item.id !== "string" || !Array.isArray(item.messages)) continue;
+
+      const previous = merged.get(item.id);
+      const messages = new Map();
+
+      const addMessages = list => {
+        list.forEach((message, index) => {
+          if (!message || !["user", "assistant"].includes(message.role)) return;
+
+          const key = message.id || legacyMessageId(item.id, index, message);
+          const old = messages.get(key);
+
+          if (!old) {
+            messages.set(key, { ...message, id: key });
+          } else {
+            messages.set(key, {
+              ...old,
+              ...message,
+              id: key,
+              ...(old.attachmentPreview && !message.attachmentPreview
+                ? {
+                    attachmentPreview: old.attachmentPreview,
+                    attachmentName: old.attachmentName || message.attachmentName
+                  }
+                : {})
+            });
+          }
+        });
+      };
+
+      if (previous) addMessages(previous.messages);
+      addMessages(item.messages);
+
+      merged.set(item.id, {
+        ...(previous || {}),
+        ...item,
+        messages: [...messages.values()],
+        updated: Math.max(previous?.updated || 0, item.updated || 0)
+      });
+    }
+  }
+
+  return [...merged.values()]
+    .sort((a, b) => (b.updated || 0) - (a.updated || 0))
+    .slice(0, 50);
+}
+
+// Sincronização inicial protegida por transação.
+for (const conversation of conversations) {
+  for (const message of conversation.messages) {
+    if (!message.id) message.id = id();
+  }
+}
+
 try {
-  const remoteSnapshot = await get(
-    ref(db, `users/${alphaUser.uid}/conversations`)
+  const conversationRef = ref(db, `users/${alphaUser.uid}/conversations`);
+  const localSnapshot = remoteConversationsSnapshot(conversations);
+
+  const result = await runTransaction(conversationRef, currentData =>
+    remoteConversationsSnapshot(
+      mergeConversationLists(currentData, localSnapshot)
+    )
   );
 
-  const remote = remoteSnapshot.exists() ? remoteSnapshot.val() : [];
-  const merged = new Map();
-
-  if (Array.isArray(remote)) {
-    remote.forEach(c => {
-      if (c && typeof c.id === "string" && Array.isArray(c.messages)) {
-        merged.set(c.id, c);
-      }
-    });
-  }
-
-  conversations.forEach(c => {
-    const previous = merged.get(c.id);
-    if (!previous || (c.updated || 0) >= (previous.updated || 0)) {
-      merged.set(c.id, c);
-    }
-  });
-
-  conversations = [...merged.values()]
-    .sort((a,b) => (b.updated || 0) - (a.updated || 0))
-    .slice(0,50);
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-
-  // Publica a combinação local e remota no Firebase.
-  if (conversations.length) {
-    await set(
-      ref(db, `users/${alphaUser.uid}/conversations`),
-      conversations.slice(0,50)
+  if (result.committed) {
+    conversations = mergeConversationLists(
+      result.snapshot.val(),
+      conversations
     );
-  }
 
-  console.log("Histórico Firebase sincronizado.");
-} catch(error) {
-  console.error("Não foi possível recuperar o histórico Firebase:", error);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+    console.log("Histórico Firebase sincronizado com segurança.");
+  }
+} catch (error) {
+  console.error("Não foi possível sincronizar o histórico:", error);
 }
 
 function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+
 let syncQueue = Promise.resolve();
 
-function save(){
-  const snapshot = conversations.slice(0,50);
+function save() {
+  const snapshot = conversations.slice(0, 50).map(c => ({
+    ...c,
+    messages: c.messages.map(m => ({ ...m }))
+  }));
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-  } catch(error) {
+  } catch (error) {
     console.error("Erro ao guardar histórico local:", error);
   }
 
-  syncQueue = syncQueue
-    .then(() => set(ref(db, `users/${alphaUser.uid}/conversations`), snapshot))
-    .catch(error => {
-      console.error("Erro ao sincronizar conversas Firebase:", error);
-    });
+  syncQueue = syncQueue.then(async () => {
+    const conversationRef = ref(db, `users/${alphaUser.uid}/conversations`);
+
+    const result = await runTransaction(conversationRef, currentData =>
+      remoteConversationsSnapshot(
+        mergeConversationLists(currentData, snapshot)
+      )
+    );
+
+    if (!result.committed) {
+      throw new Error("A transação Firebase não foi concluída.");
+    }
+
+    // Recupera também mensagens que chegaram de outros dispositivos.
+    conversations = mergeConversationLists(
+      result.snapshot.val(),
+      conversations
+    );
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+
+    if (typeof render === "function") render();
+  }).catch(error => {
+    console.error("Erro ao sincronizar conversas Firebase:", error);
+  });
 }
+
 function active(){return conversations.find(c=>c.id===activeId)}
 function createChat(){const c={id:id(),title:'Nova conversa',messages:[],updated:Date.now()};conversations.unshift(c);activeId=c.id;save();render();$('sidebar').classList.remove('open');$('prompt').focus();}
 
@@ -956,6 +1308,19 @@ function addMessageNode(m){
   body.textContent=m.text||'';
  }
 
+
+ if(m.attachmentPreview){
+  const attached=document.createElement("img");
+  attached.src=m.attachmentPreview;
+  attached.alt=m.attachmentName||"Imagem anexada";
+  attached.loading="lazy";
+  body.appendChild(attached);
+  const label=document.createElement("div");
+  label.className="meta";
+  label.textContent=m.attachmentName||"Imagem anexada";
+  body.appendChild(label);
+ }
+
  if(m.image_url){
   const img=document.createElement('img');
   img.src=m.image_url;
@@ -1007,46 +1372,171 @@ function addMessageNode(m){
 }
 
 function render(){
- const c=active();$('messages').replaceChildren();$('welcome').hidden=!!(c&&c.messages.length);
+ const c=active();
+ $('messages').replaceChildren();
+ $('welcome').hidden=!!(c&&c.messages.length);
  if(c)c.messages.forEach(addMessageNode);
- renderHistory();$('chat').scrollTop=$('chat').scrollHeight;
+ renderHistory();
+ $('chat').scrollTop=$('chat').scrollHeight;
 }
+
 function pushMessage(role,text,extra={}){
- const c=active();if(!c)return;
- const m={role,text,...extra};c.messages.push(m);c.updated=Date.now();
- if(role==='user'&&c.title==='Nova conversa')c.title=(text.slice(0,42)||'Nova conversa');
- save();render();
+ const c=active();
+ if(!c)return;
+
+ const m={
+  id:id(),
+  role,
+  text,
+  ...extra
+ };
+
+ c.messages.push(m);
+ c.updated=Date.now();
+
+ if(role==='user'&&c.title==='Nova conversa'){
+  c.title=(text.slice(0,42)||'Nova conversa');
+ }
+
+ save();
+ render();
 }
+
+
+
 async function sendMessage(text){
- if(busy)return;text=(text??$('prompt').value).trim();if(!text)return;
+ if(busy)return;
+
+ text=(text??$('prompt').value).trim();
+
+ const imageFile=selectedImage;
+ const imageData=selectedImageData;
+ const imagePreview=selectedImagePreview;
+
+ if(!text && !imageFile)return;
+
+ if(!text && imageFile){
+  text="Analisa esta imagem e descreve o que consegues identificar.";
+ }
+
  if(!activeId)createChat();
- $('prompt').value='';$('prompt').style.height='auto';pushMessage('user',text);
- busy=true;$('send').disabled=true;$('typing').hidden=false;$('statusText').textContent='A pensar…';
+
+ $('prompt').value='';
+ $('prompt').style.height='auto';
+
+ const userExtra=imageFile
+  ?{attachmentPreview:imagePreview,attachmentName:imageFile.name}
+  :{};
+
+ pushMessage('user',text,userExtra);
+
+ busy=true;
+ $('send').disabled=true;
+ $('typing').hidden=false;
+ $('statusText').textContent='A pensar…';
+
+ let success=false;
+
  try{
   const c=active();
-  const context=c.messages.slice(-13,-1).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.text})).filter(m=>m.content);
-  const token = await window.alphaGetIdToken();
+
+  const context=c.messages
+   .slice(-13,-1)
+   .map(m=>({
+    role:m.role==='assistant'?'assistant':'user',
+    content:m.text
+   }))
+   .filter(m=>m.content);
+
+  const token=await window.alphaGetIdToken();
+
+  if(!token){
+   throw new Error('A tua sessão expirou. Inicia sessão novamente.');
+  }
+
   const res=await fetch('/ask',{
    method:'POST',
    headers:{
     'Content-Type':'application/json',
     'Authorization':`Bearer ${token}`
    },
-   body:JSON.stringify({q:text,history:context})
+   body:JSON.stringify({
+    q:text,
+    history:context,
+    image:imageFile
+     ?{mimeType:imageFile.type,data:imageData}
+     :null
+   })
   });
-  let data;try{data=await res.json()}catch{throw new Error('O servidor devolveu uma resposta inválida.')}
-  if(!res.ok)throw new Error(data.error||'Não foi possível obter resposta.');
-  pushMessage('assistant',data.text||'Não consegui gerar uma resposta.',{image_url:data.image_url||null,prompt:data.prompt||null,sources:Array.isArray(data.sources)?data.sources:[]});
- }catch(e){pushMessage('assistant','Ocorreu um erro: '+(e.message||'verifica a ligação e tenta novamente.'));}
- finally{busy=false;$('send').disabled=false;$('typing').hidden=true;$('statusText').textContent='Pronta';$('prompt').focus();}
+
+  let data;
+
+  try{
+   data=await res.json();
+  }catch{
+   throw new Error('O servidor devolveu uma resposta inválida.');
+  }
+
+  if(!res.ok){
+   throw new Error(data.error||'Não foi possível obter resposta.');
+  }
+
+  pushMessage('assistant',data.text||'Não consegui gerar uma resposta.',{
+   image_url:data.image_url||null,
+   prompt:data.prompt||null,
+   sources:Array.isArray(data.sources)?data.sources:[]
+  });
+
+  success=true;
+
+ }catch(e){
+  pushMessage(
+   'assistant',
+   'Ocorreu um erro: '+(e.message||'verifica a ligação e tenta novamente.')
+  );
+
+ }finally{
+  if(success && imageFile && selectedImage===imageFile){
+   clearAttachment();
+  }
+
+  busy=false;
+  $('send').disabled=false;
+  $('typing').hidden=true;
+  $('statusText').textContent='Pronta';
+  $('prompt').focus();
+ }
 }
-$('form').addEventListener('submit',e=>{e.preventDefault();sendMessage()});
-$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
-$('prompt').addEventListener('input',()=>{const el=$('prompt');el.style.height='auto';el.style.height=Math.min(el.scrollHeight,150)+'px'});
+
+$('form').addEventListener('submit',e=>{
+ e.preventDefault();
+ sendMessage();
+});
+
+$('prompt').addEventListener('keydown',e=>{
+ if(e.key==='Enter'&&!e.shiftKey){
+  e.preventDefault();
+  sendMessage();
+ }
+});
+
+$('prompt').addEventListener('input',()=>{
+ const el=$('prompt');
+ el.style.height='auto';
+ el.style.height=Math.min(el.scrollHeight,150)+'px';
+});
+
 $('newChat').onclick=createChat;
 $('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
-document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));
-if(!conversations.length)createChat();else{activeId=conversations[0].id;render();}
-</script>
-</body>
-</html>
+
+document.querySelectorAll('[data-prompt]').forEach(b=>{
+ b.onclick=()=>sendMessage(b.dataset.prompt);
+});
+
+if(!conversations.length){
+ createChat();
+}else{
+ activeId=conversations[0].id;
+ render();
+}
+</script> </body> </html>
