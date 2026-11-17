@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
-<title>Alpha | Alpha Technologies</title>
+<title>Alnova | Alpha Technologies</title>
 <link rel="icon" type="image/webp" href="/static/assets/alphai-icon.webp">
 <style>
 
@@ -1298,7 +1298,7 @@ html[data-theme="light"] .home-recent-item {
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="Alpha"><div>Alpha</div></div>
+  <div class="brand"><img class="brand-logo" src="/static/assets/alphai-icon.webp" alt="Alnova"><div>Alnova</div></div>
   <button class="new" id="newChat">＋ Nova conversa</button>
   <div class="side-label">Conversas neste dispositivo</div>
   <div class="history" id="history"></div>
@@ -1323,7 +1323,7 @@ html[data-theme="light"] .home-recent-item {
 </aside>
 <main class="main">
   <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><img class="workspace-logo" src="/static/assets/alphai-icon.webp" alt="Logótipo Alpha"><div><div class="top-title">Alpha</div><div class="sub">O teu assistente inteligente</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" id="menuBtn" aria-label="Abrir menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><img class="workspace-logo" src="/static/assets/alphai-icon.webp" alt="Logótipo Alnova"><div><div class="top-title">Alnova</div><div class="sub">O teu assistente inteligente</div></div></div>
     <div class="top-actions">
       <div class="status"><span class="dot"></span><span id="statusText">Pronta</span></div>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema"></button>
@@ -1334,7 +1334,7 @@ html[data-theme="light"] .home-recent-item {
         <div id="profileMenu" class="profile-menu" hidden>
           <div class="profile-menu-heading">
             <span class="profile-menu-avatar" id="menuAvatar">A</span>
-            <div><strong id="menuName">Utilizador Alpha</strong><small id="menuEmail"></small></div>
+            <div><strong id="menuName">Utilizador Alnova</strong><small id="menuEmail"></small></div>
           </div>
           <div class="session-label">● Sessão ativa</div>
           <button type="button" id="menuProfile">Perfil</button>
@@ -1349,10 +1349,10 @@ html[data-theme="light"] .home-recent-item {
 
     <div class="welcome" id="welcome">
       <div class="orb">
-        <img src="/static/assets/alphai-icon.webp" alt="Alpha">
+        <img src="/static/assets/alphai-icon.webp" alt="Alnova">
       </div>
 
-      <h1>Olá, <span class="gradient" id="welcomeName">Alpha</span>!</h1>
+      <h1>Olá, <span class="gradient" id="welcomeName">Alnova</span>!</h1>
       <p>Estou aqui para ajudar-te a transformar ideias em possibilidades.</p>
 
       <div class="quick-grid">
@@ -1391,7 +1391,7 @@ html[data-theme="light"] .home-recent-item {
         <div id="homeRecentList"></div>
       </section>
     </div>
-    <div id="messages"></div><div class="typing" id="typing" hidden>Alpha está a pensar…</div>
+    <div id="messages"></div><div class="typing" id="typing" hidden>Alnova está a pensar…</div>
   </section>
   <div class="composer-wrap">
     <div id="attachmentPreview" class="attachment-preview" hidden>
@@ -1405,7 +1405,7 @@ html[data-theme="light"] .home-recent-item {
       <textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve uma mensagem ou anexa uma imagem…" aria-label="Mensagem"></textarea>
       <button id="send" type="submit">Enviar ↑</button>
     </form>
-    <div class="disclaimer">A Alpha pode cometer erros. Verifica informações importantes.</div>
+    <div class="disclaimer">A Alnova pode cometer erros. Verifica informações importantes.</div>
   </div>
 </main>
 <script type="module">
@@ -1421,8 +1421,8 @@ const alphaUser = await initAlphaAuth();
 const $=id=>document.getElementById(id);
 
 // Perfil no cabeçalho
-const accountEmail = alphaUser.email || "Conta Alpha";
-const accountName = alphaUser.displayName || "Utilizador Alpha";
+const accountEmail = alphaUser.email || "Conta Alnova";
+const accountName = alphaUser.displayName || "Utilizador Alnova";
 $("welcomeName").textContent = accountName;
 const initial = (alphaUser.displayName || accountEmail || "A").trim().charAt(0).toUpperCase();
 $("headerAvatar").textContent = initial;
@@ -1725,9 +1725,9 @@ function clearAttachment() {
 $("removeAttachment").onclick = clearAttachment;
 
 // Perfil da conta autenticada
-const profileAccountEmail = alphaUser.email || "Conta Alpha";
+const profileAccountEmail = alphaUser.email || "Conta Alnova";
 $('accountEmail').textContent = profileAccountEmail;
-$('accountName').textContent = alphaUser.displayName || "Utilizador Alpha";
+$('accountName').textContent = alphaUser.displayName || "Utilizador Alnova";
 $('accountAvatar').textContent =
   (alphaUser.displayName || profileAccountEmail || "A").trim().charAt(0).toUpperCase();
 
@@ -1736,7 +1736,7 @@ $('profileButton').onclick = () => {
 };
 
 $('logoutButton').onclick = async () => {
-  if (confirm("Queres terminar a sessão da Alpha?")) {
+  if (confirm("Queres terminar a sessão da Alnova?")) {
     await window.alphaSignOut();
   }
 };
@@ -2122,7 +2122,7 @@ function addMessageNode(m){
  if(m.image_url){
   const img=document.createElement('img');
   img.src=m.image_url;
-  img.alt='Imagem gerada pela Alpha';
+  img.alt='Imagem gerada pela Alnova';
   img.loading='lazy';
   img.referrerPolicy='no-referrer';
 

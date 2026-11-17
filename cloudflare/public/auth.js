@@ -79,7 +79,7 @@ function showLogin() {
     </style>
 
     <div class="alpha-auth-card">
-      <div class="auth-brand"><img src="/static/assets/alphai-icon.webp" alt="Alpha"><h2>Alpha</h2></div>
+      <div class="auth-brand"><img src="/static/assets/alphai-icon.webp" alt="Alnova"><h2>Alnova</h2></div>
       <p id="alpha-auth-description">
         Entra na tua conta para continuar.
       </p>
