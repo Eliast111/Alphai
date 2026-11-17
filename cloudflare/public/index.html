@@ -1457,11 +1457,11 @@ let selectedImagePreview = null;
 let selectedZipFile = null;
 let selectedDocuments = null;
 
-const ZIP_MAX_BYTES = 10 * 1024 * 1024;
-const ZIP_MAX_ENTRIES = 40;
-const ZIP_MAX_FILES = 15;
-const ZIP_MAX_FILE_BYTES = 50 * 1024;
-const ZIP_MAX_TOTAL_BYTES = 100 * 1024;
+const ZIP_MAX_BYTES = 25 * 1024 * 1024;
+const ZIP_MAX_ENTRIES = 200;
+const ZIP_MAX_FILES = 100;
+const ZIP_MAX_FILE_BYTES = 250 * 1024;
+const ZIP_MAX_TOTAL_BYTES = 1024 * 1024;
 const ZIP_ALLOWED_EXTENSIONS = new Set([
   "txt", "md", "csv", "json", "py", "js", "mjs", "cjs",
   "css", "html", "htm"
@@ -1489,7 +1489,7 @@ function safeZipEntryName(rawName) {
 
 async function extractZipDocuments(file) {
   if (file.size > ZIP_MAX_BYTES) {
-    throw new Error("O ZIP deve ter no máximo 10 MB.");
+    throw new Error("O ZIP deve ter no máximo 25 MB.");
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -1508,7 +1508,7 @@ async function extractZipDocuments(file) {
       entryCount++;
       if (failure) return;
       if (entryCount > ZIP_MAX_ENTRIES) {
-        failure = new Error("O ZIP contém demasiados elementos (máximo 40).");
+        failure = new Error("O ZIP contém demasiados elementos (máximo 200).");
         return;
       }
 
@@ -1526,7 +1526,7 @@ async function extractZipDocuments(file) {
       if (!ZIP_ALLOWED_EXTENSIONS.has(extension)) return;
 
       if (documents.length >= ZIP_MAX_FILES) {
-        failure = new Error("O ZIP pode conter no máximo 15 ficheiros suportados.");
+        failure = new Error("O ZIP pode conter no máximo 100 ficheiros suportados.");
         return;
       }
 
@@ -1536,7 +1536,7 @@ async function extractZipDocuments(file) {
       }
 
       if (Number.isFinite(entry.originalSize) && entry.originalSize > ZIP_MAX_FILE_BYTES) {
-        failure = new Error(`O ficheiro ${name} ultrapassa 50 KB descomprimidos.`);
+        failure = new Error(`O ficheiro ${name} ultrapassa 250 KB descomprimidos.`);
         return;
       }
 
@@ -1544,7 +1544,7 @@ async function extractZipDocuments(file) {
         Number.isFinite(entry.originalSize) &&
         Number.isFinite(entry.size) &&
         entry.size > 0 &&
-        entry.originalSize / entry.size > 100
+        entry.originalSize / entry.size > 200
       ) {
         failure = new Error(`O ficheiro ${name} tem uma taxa de compressão excessiva.`);
         return;
