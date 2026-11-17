@@ -72,17 +72,20 @@ public class MainActivity extends Activity {
 
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
+                intent.setType("*/*");
 
                 intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
                     "image/jpeg",
                     "image/png",
-                    "image/webp"
+                    "image/webp",
+                    "application/zip",
+                    "application/x-zip-compressed",
+                    "application/octet-stream"
                 });
 
                 try {
                     startActivityForResult(
-                        Intent.createChooser(intent, "Selecionar imagem"),
+                        Intent.createChooser(intent, "Selecionar imagem ou ZIP"),
                         FILE_CHOOSER_REQUEST
                     );
                 } catch (Exception e) {

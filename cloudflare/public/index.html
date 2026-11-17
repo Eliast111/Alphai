@@ -1400,7 +1400,7 @@ html[data-theme="light"] .home-recent-item {
       <button id="removeAttachment" type="button" aria-label="Remover anexo">×</button>
     </div>
     <form class="composer" id="form">
-      <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp,.zip,application/zip,application/x-zip-compressed" hidden>
       <button id="attachButton" class="attach-button" type="button" aria-label="Anexar imagem">＋</button>
       <textarea id="prompt" rows="1" maxlength="2000" placeholder="Escreve uma mensagem ou anexa uma imagem…" aria-label="Mensagem"></textarea>
       <button id="send" type="submit">Enviar ↑</button>
@@ -1410,6 +1410,7 @@ html[data-theme="light"] .home-recent-item {
 </main>
 <script type="module">
 import { initAlphaAuth } from "/auth.js";
+import { Unzip, UnzipInflate } from "/fflate.mjs";
 import { db } from "/firebase-config.js";
 import { ref, get, set, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
@@ -1449,21 +1450,200 @@ $("headerLogout").onclick = async () => {
 // Controlador de tema unificado abaixo.
 
 
-// Anexo de imagem
+// Anexos: imagens e arquivos ZIP com documentos de texto/código.
 let selectedImage = null;
 let selectedImageData = null;
 let selectedImagePreview = null;
+let selectedZipFile = null;
+let selectedDocuments = null;
+
+const ZIP_MAX_BYTES = 10 * 1024 * 1024;
+const ZIP_MAX_ENTRIES = 40;
+const ZIP_MAX_FILES = 15;
+const ZIP_MAX_FILE_BYTES = 50 * 1024;
+const ZIP_MAX_TOTAL_BYTES = 100 * 1024;
+const ZIP_ALLOWED_EXTENSIONS = new Set([
+  "txt", "md", "csv", "json", "py", "js", "mjs", "cjs",
+  "css", "html", "htm"
+]);
 
 $("attachButton").onclick = () => $("imageInput").click();
+
+function safeZipEntryName(rawName) {
+  if (typeof rawName !== "string" || !rawName || rawName.length > 180) {
+    throw new Error("O ZIP contém um nome de ficheiro inválido.");
+  }
+
+  const name = rawName.replace(/\\/g, "/");
+  if (
+    name.startsWith("/") ||
+    /^[a-z]:/i.test(name) ||
+    name.includes("\0") ||
+    name.split("/").some(part => part === "..")
+  ) {
+    throw new Error("O ZIP contém um caminho de ficheiro não permitido.");
+  }
+
+  return name;
+}
+
+async function extractZipDocuments(file) {
+  if (file.size > ZIP_MAX_BYTES) {
+    throw new Error("O ZIP deve ter no máximo 10 MB.");
+  }
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const signature = String.fromCharCode(...bytes.subarray(0, 4));
+  if (!["PK\x03\x04", "PK\x05\x06", "PK\x07\x08"].includes(signature)) {
+    throw new Error("O ficheiro selecionado não parece ser um ZIP válido.");
+  }
+
+  return await new Promise((resolve, reject) => {
+    const documents = [];
+    let entryCount = 0;
+    let totalBytes = 0;
+    let failure = null;
+
+    const unzip = new Unzip(entry => {
+      entryCount++;
+      if (failure) return;
+      if (entryCount > ZIP_MAX_ENTRIES) {
+        failure = new Error("O ZIP contém demasiados elementos (máximo 40).");
+        return;
+      }
+
+      let name;
+      try {
+        name = safeZipEntryName(entry.name);
+      } catch (error) {
+        failure = error;
+        return;
+      }
+
+      if (name.endsWith("/")) return;
+
+      const extension = name.split("/").pop().split(".").pop().toLowerCase();
+      if (!ZIP_ALLOWED_EXTENSIONS.has(extension)) return;
+
+      if (documents.length >= ZIP_MAX_FILES) {
+        failure = new Error("O ZIP pode conter no máximo 15 ficheiros suportados.");
+        return;
+      }
+
+      if (![0, 8].includes(entry.compression)) {
+        failure = new Error("O ZIP usa um método de compressão não suportado.");
+        return;
+      }
+
+      if (Number.isFinite(entry.originalSize) && entry.originalSize > ZIP_MAX_FILE_BYTES) {
+        failure = new Error(`O ficheiro ${name} ultrapassa 50 KB descomprimidos.`);
+        return;
+      }
+
+      if (
+        Number.isFinite(entry.originalSize) &&
+        Number.isFinite(entry.size) &&
+        entry.size > 0 &&
+        entry.originalSize / entry.size > 100
+      ) {
+        failure = new Error(`O ficheiro ${name} tem uma taxa de compressão excessiva.`);
+        return;
+      }
+
+      const chunks = [];
+      let fileBytes = 0;
+
+      entry.ondata = (error, chunk, final) => {
+        if (error) {
+          failure = new Error(`Não foi possível extrair ${name}.`);
+          return;
+        }
+
+        if (chunk?.length) {
+          fileBytes += chunk.length;
+          totalBytes += chunk.length;
+
+          if (fileBytes > ZIP_MAX_FILE_BYTES || totalBytes > ZIP_MAX_TOTAL_BYTES) {
+            failure = new Error("O conteúdo extraído ultrapassa os limites permitidos.");
+            chunks.length = 0;
+            return;
+          }
+
+          if (!failure) chunks.push(chunk);
+        }
+
+        if (final && !failure) {
+          const contentBytes = new Uint8Array(fileBytes);
+          let offset = 0;
+          for (const part of chunks) {
+            contentBytes.set(part, offset);
+            offset += part.length;
+          }
+
+          const content = new TextDecoder("utf-8").decode(contentBytes);
+          const unusualControls = (content.match(/[\u0001-\u0008\u000B\u000C\u000E-\u001F]/g) || []).length;
+          if (content.includes("\0") || unusualControls > Math.max(2, content.length * 0.01)) {
+            failure = new Error(`O ficheiro ${name} não parece ser texto simples.`);
+            return;
+          }
+
+          documents.push({ name, content });
+        }
+      };
+
+      entry.start();
+    });
+
+    unzip.register(UnzipInflate);
+
+    try {
+      unzip.push(bytes, true);
+    } catch (error) {
+      reject(new Error("Não foi possível abrir o arquivo ZIP."));
+      return;
+    }
+
+    if (failure) {
+      reject(failure);
+      return;
+    }
+
+    if (!documents.length) {
+      reject(new Error("O ZIP não contém ficheiros de texto suportados (.txt, .md, .csv, .json, .py, .js, .css ou .html)."));
+      return;
+    }
+
+    resolve(documents);
+  });
+}
 
 $("imageInput").onchange = async event => {
   const file = event.target.files?.[0];
   if (!file) return;
 
-  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  const isZip = file.name.toLowerCase().endsWith(".zip") ||
+    ["application/zip", "application/x-zip-compressed"].includes(file.type);
 
+  clearAttachment();
+
+  if (isZip) {
+    try {
+      const documents = await extractZipDocuments(file);
+      selectedZipFile = file;
+      selectedDocuments = documents;
+      $("attachmentImage").hidden = true;
+      $("attachmentName").textContent = `${file.name} · ${documents.length} ficheiros de texto/código`;
+      $("attachmentPreview").hidden = false;
+    } catch (error) {
+      clearAttachment();
+      alert(error.message || "Não foi possível ler o ZIP.");
+    }
+    return;
+  }
+
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
   if (!allowed.includes(file.type)) {
-    alert("Formato não suportado. Escolhe JPG, PNG ou WebP.");
+    alert("Formato não suportado. Escolhe JPG, PNG, WebP ou ZIP.");
     event.target.value = "";
     return;
   }
@@ -1474,56 +1654,34 @@ $("imageInput").onchange = async event => {
     return;
   }
 
-  clearAttachment();
-
   try {
     const imageData = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-
       reader.onload = () => {
         const result = String(reader.result || "");
         const data = result.split(",")[1];
-
         if (!data) {
           reject(new Error("Não foi possível ler a imagem."));
           return;
         }
-
         resolve(data);
       };
-
-      reader.onerror = () => reject(
-        new Error("Falha ao ler o ficheiro.")
-      );
-
+      reader.onerror = () => reject(new Error("Falha ao ler o ficheiro."));
       reader.readAsDataURL(file);
     });
 
     const preview = await new Promise((resolve, reject) => {
       const img = new Image();
       const objectUrl = URL.createObjectURL(file);
-
       img.onload = () => {
         try {
-          const scale = Math.min(
-            1,
-            480 / Math.max(img.width, img.height)
-          );
-
+          const scale = Math.min(1, 480 / Math.max(img.width, img.height));
           const canvas = document.createElement("canvas");
           canvas.width = Math.max(1, Math.round(img.width * scale));
           canvas.height = Math.max(1, Math.round(img.height * scale));
-
           const context = canvas.getContext("2d");
-
-          if (!context) {
-            throw new Error("Não foi possível criar a pré-visualização.");
-          }
-
-          context.drawImage(
-            img, 0, 0, canvas.width, canvas.height
-          );
-
+          if (!context) throw new Error("Não foi possível criar a pré-visualização.");
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL("image/jpeg", 0.65));
         } catch (error) {
           reject(error);
@@ -1531,23 +1689,20 @@ $("imageInput").onchange = async event => {
           URL.revokeObjectURL(objectUrl);
         }
       };
-
       img.onerror = () => {
         URL.revokeObjectURL(objectUrl);
         reject(new Error("Não foi possível abrir a imagem."));
       };
-
       img.src = objectUrl;
     });
 
     selectedImage = file;
     selectedImageData = imageData;
     selectedImagePreview = preview;
-
+    $("attachmentImage").hidden = false;
     $("attachmentImage").src = preview;
     $("attachmentName").textContent = file.name;
     $("attachmentPreview").hidden = false;
-
   } catch (error) {
     clearAttachment();
     alert(error.message || "Não foi possível carregar a imagem.");
@@ -1558,13 +1713,16 @@ function clearAttachment() {
   selectedImage = null;
   selectedImageData = null;
   selectedImagePreview = null;
+  selectedZipFile = null;
+  selectedDocuments = null;
   $("imageInput").value = "";
   $("attachmentPreview").hidden = true;
+  $("attachmentImage").hidden = false;
   $("attachmentImage").removeAttribute("src");
+  $("attachmentName").textContent = "";
 }
 
 $("removeAttachment").onclick = clearAttachment;
-
 
 // Perfil da conta autenticada
 const profileAccountEmail = alphaUser.email || "Conta Alpha";
@@ -1954,6 +2112,13 @@ function addMessageNode(m){
   body.appendChild(label);
  }
 
+ if(m.attachmentName && !m.attachmentPreview){
+  const label=document.createElement("div");
+  label.className="meta";
+  label.textContent=`📦 ${m.attachmentName} · ${m.attachmentCount||0} ficheiros`;
+  body.appendChild(label);
+ }
+
  if(m.image_url){
   const img=document.createElement('img');
   img.src=m.image_url;
@@ -2092,11 +2257,16 @@ async function sendMessage(text){
  const imageFile=selectedImage;
  const imageData=selectedImageData;
  const imagePreview=selectedImagePreview;
+ const zipFile=selectedZipFile;
+ const documents=selectedDocuments;
 
- if(!text && !imageFile)return;
+ if(!text && !imageFile && !zipFile)return;
 
  if(!text && imageFile){
   text="Analisa esta imagem e descreve o que consegues identificar.";
+ }
+ if(!text && zipFile){
+  text="Analisa os ficheiros deste ZIP, explica a estrutura e identifica possíveis problemas.";
  }
 
  if(!activeId)createChat();
@@ -2106,7 +2276,9 @@ async function sendMessage(text){
 
  const userExtra=imageFile
   ?{attachmentPreview:imagePreview,attachmentName:imageFile.name}
-  :{};
+  :zipFile
+   ?{attachmentName:zipFile.name,attachmentCount:documents?.length||0}
+   :{};
 
  pushMessage('user',text,userExtra);
 
@@ -2145,7 +2317,8 @@ async function sendMessage(text){
     history:context,
     image:imageFile
      ?{mimeType:imageFile.type,data:imageData}
-     :null
+     :null,
+    documents:zipFile ? documents : null
    })
   });
 
@@ -2176,7 +2349,10 @@ async function sendMessage(text){
   );
 
  }finally{
-  if(success && imageFile && selectedImage===imageFile){
+  if(
+   success &&
+   ((imageFile && selectedImage===imageFile) || (zipFile && selectedZipFile===zipFile))
+  ){
    clearAttachment();
   }
 
