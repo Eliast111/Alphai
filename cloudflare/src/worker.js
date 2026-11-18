@@ -1,8 +1,8 @@
 const MAX_MESSAGE_CHARS = 2000;
 const MAX_CONTEXT_MESSAGES = 12;
 const MAX_DOCUMENT_FILES = 12000;
-const MAX_DOCUMENT_FILE_CHARS = 1000000;
-const MAX_DOCUMENT_TOTAL_CHARS = 5000000;
+const MAX_DOCUMENT_FILE_CHARS = 15 * 1024 * 1024;
+const MAX_DOCUMENT_TOTAL_CHARS = 20 * 1024 * 1024;
 const ALLOWED_DOCUMENT_EXTENSIONS = new Set([
   "txt", "md", "csv", "json", "py", "js", "mjs", "cjs",
   "css", "html", "htm"
@@ -370,7 +370,7 @@ function validateDocuments(input) {
 
     totalChars += item.content.length;
     if (totalChars > MAX_DOCUMENT_TOTAL_CHARS) {
-      return { documents: [], error: "O conteúdo total dos ficheiros ultrapassa 5 MB de texto.", status: 413 };
+      return { documents: [], error: "O conteúdo total dos ficheiros ultrapassa 20 MB de texto.", status: 413 };
     }
 
     documents.push({ name, content: item.content });

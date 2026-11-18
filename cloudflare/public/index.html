@@ -1457,11 +1457,14 @@ let selectedImagePreview = null;
 let selectedZipFile = null;
 let selectedDocuments = null;
 
-const ZIP_MAX_BYTES = 50 * 1024 * 1024;
-const ZIP_MAX_ENTRIES = 15000;
+const ZIP_MAX_BYTES = 100 * 1024 * 1024;
+const ZIP_MAX_ENTRIES = 20000;
 const ZIP_MAX_FILES = 12000;
-const ZIP_MAX_FILE_BYTES = 1024 * 1024;
-const ZIP_MAX_TOTAL_BYTES = 5 * 1024 * 1024;
+const ZIP_MAX_FILE_BYTES = 15 * 1024 * 1024;
+const ZIP_MAX_TOTAL_BYTES = 20 * 1024 * 1024;
+const ZIP_IGNORED_DIRECTORIES = new Set([
+  "node_modules", ".git", ".venv", "venv", "__pycache__"
+]);
 const ZIP_ALLOWED_EXTENSIONS = new Set([
   "txt", "md", "csv", "json", "py", "js", "mjs", "cjs",
   "css", "html", "htm"
@@ -1489,7 +1492,7 @@ function safeZipEntryName(rawName) {
 
 async function extractZipDocuments(file) {
   if (file.size > ZIP_MAX_BYTES) {
-    throw new Error("O ZIP deve ter no máximo 50 MB.");
+    throw new Error("O ZIP deve ter no máximo 100 MB.");
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -1508,7 +1511,7 @@ async function extractZipDocuments(file) {
       entryCount++;
       if (failure) return;
       if (entryCount > ZIP_MAX_ENTRIES) {
-        failure = new Error("O ZIP contém demasiados elementos (máximo 15000).");
+        failure = new Error("O ZIP contém demasiados elementos (máximo 20000).");
         return;
       }
 
@@ -1521,6 +1524,9 @@ async function extractZipDocuments(file) {
       }
 
       if (name.endsWith("/")) return;
+  if (name.split("/").some(part =>
+    ZIP_IGNORED_DIRECTORIES.has(part.toLowerCase())
+  )) return;
 
       const extension = name.split("/").pop().split(".").pop().toLowerCase();
       if (!ZIP_ALLOWED_EXTENSIONS.has(extension)) return;
@@ -1536,7 +1542,7 @@ async function extractZipDocuments(file) {
       }
 
       if (Number.isFinite(entry.originalSize) && entry.originalSize > ZIP_MAX_FILE_BYTES) {
-        failure = new Error(`O ficheiro ${name} ultrapassa 1 MB descomprimido.`);
+        failure = new Error(`O ficheiro ${name} ultrapassa 15 MB descomprimidos.`);
         return;
       }
 
