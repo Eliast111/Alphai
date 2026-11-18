@@ -1458,8 +1458,8 @@ let selectedZipFile = null;
 let selectedDocuments = null;
 
 const ZIP_MAX_BYTES = 50 * 1024 * 1024;
-const ZIP_MAX_ENTRIES = 400;
-const ZIP_MAX_FILES = 200;
+const ZIP_MAX_ENTRIES = 15000;
+const ZIP_MAX_FILES = 12000;
 const ZIP_MAX_FILE_BYTES = 1024 * 1024;
 const ZIP_MAX_TOTAL_BYTES = 5 * 1024 * 1024;
 const ZIP_ALLOWED_EXTENSIONS = new Set([
@@ -1508,7 +1508,7 @@ async function extractZipDocuments(file) {
       entryCount++;
       if (failure) return;
       if (entryCount > ZIP_MAX_ENTRIES) {
-        failure = new Error("O ZIP contém demasiados elementos (máximo 400).");
+        failure = new Error("O ZIP contém demasiados elementos (máximo 15000).");
         return;
       }
 
@@ -1526,7 +1526,7 @@ async function extractZipDocuments(file) {
       if (!ZIP_ALLOWED_EXTENSIONS.has(extension)) return;
 
       if (documents.length >= ZIP_MAX_FILES) {
-        failure = new Error("O ZIP pode conter no máximo 200 ficheiros suportados.");
+        failure = new Error("O ZIP pode conter no máximo 12000 ficheiros suportados.");
         return;
       }
 
